@@ -1,0 +1,1 @@
+from backend.tests.fixtures.adversarial_fixtures import get_all_adversarial_fixtures

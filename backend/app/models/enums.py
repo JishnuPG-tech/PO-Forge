@@ -1,0 +1,80 @@
+import enum
+
+class PublicationStatus(str, enum.Enum):
+    DRAFT = "DRAFT"
+    REVIEW_REQUIRED = "REVIEW_REQUIRED"
+    APPROVED = "APPROVED"
+    PUBLISHED = "PUBLISHED"
+    ARCHIVED = "ARCHIVED"
+
+class TopicState(str, enum.Enum):
+    LOCKED = "LOCKED"
+    NOT_LEARNED = "NOT_LEARNED"
+    LEARNING = "LEARNING"
+    AVAILABLE = "AVAILABLE"
+    NEEDS_REVISION = "NEEDS_REVISION"
+    MASTERED = "MASTERED"
+
+class QuestionDifficulty(str, enum.Enum):
+    EASY = "EASY"
+    MEDIUM = "MEDIUM"
+    HARD = "HARD"
+
+class MistakeCategory(str, enum.Enum):
+    CONCEPT_ERROR = "CONCEPT_ERROR"
+    CALCULATION_ERROR = "CALCULATION_ERROR"
+    CARELESS_ERROR = "CARELESS_ERROR"
+    MISREAD_QUESTION = "MISREAD_QUESTION"
+    WRONG_APPROACH = "WRONG_APPROACH"
+    TIME_PRESSURE = "TIME_PRESSURE"
+    GUESSING = "GUESSING"
+    KNOWLEDGE_GAP = "KNOWLEDGE_GAP"
+
+class ExamReadinessState(str, enum.Enum):
+    FOUNDATION = "FOUNDATION"
+    DEVELOPING = "DEVELOPING"
+    COMPETITIVE = "COMPETITIVE"
+    STRONG = "STRONG"
+    EXAM_READY = "EXAM_READY"
+
+class DocumentType(str, enum.Enum):
+    PDF = "PDF"
+    SCANNED_PDF = "SCANNED_PDF"
+    DOCX = "DOCX"
+    IMAGE = "IMAGE"
+    TEXT = "TEXT"
+    STUDY_NOTE = "STUDY_NOTE"
+
+class ProcessingJobStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+class MockType(str, enum.Enum):
+    FULL = "FULL"
+    SUBJECT = "SUBJECT"
+    TOPIC = "TOPIC"
+    ADAPTIVE = "ADAPTIVE"
+    CUSTOM = "CUSTOM"
+
+class ValidationStatus(str, enum.Enum):
+    VALIDATED = "VALIDATED"
+    FLAGGED = "FLAGGED"
+    FAILED = "FAILED"
+
+class AnomalyType(str, enum.Enum):
+    CORRUPTED_DECIMAL = "CORRUPTED_DECIMAL"
+    OCR_SUBSTITUTION = "OCR_SUBSTITUTION"
+    MISSING_OPTION = "MISSING_OPTION"
+    SYMBOL_ERROR = "SYMBOL_ERROR"
+    MATH_DISCREPANCY = "MATH_DISCREPANCY"
+    WATERMARK_POLLUTION = "WATERMARK_POLLUTION"
+    TRUNCATED_TEXT = "TRUNCATED_TEXT"
+    DUPLICATE_CANDIDATE = "DUPLICATE_CANDIDATE"
+
+class RoleName(str, enum.Enum):
+    SUPER_ADMIN = "SUPER_ADMIN"
+    CONTENT_MANAGER = "CONTENT_MANAGER"
+    REVIEWER = "REVIEWER"
+    STUDENT = "STUDENT"
