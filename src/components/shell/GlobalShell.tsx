@@ -29,8 +29,8 @@ import { CommandPalette } from "@/components/ui/CommandPalette";
 import { SlideOverPanel } from "@/components/ui/SlideOverPanel";
 import { CoachPanel } from "@/components/coach/CoachPanel";
 
-import { authApi } from "@/lib/api/auth";
-import { UserProfileResponse } from "@/lib/api/types";
+import { authApi, UserProfileResponse } from "@/lib/api";
+
 
 export interface GlobalShellProps {
   children: React.ReactNode;

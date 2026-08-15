@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+
 import Link from "next/link";
 import { Button } from "./Button";
 import { Card } from "./Card";

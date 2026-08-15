@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+
 import { Check, X } from "lucide-react";
 
 export type OptionState = "default" | "hover" | "selected" | "correct" | "incorrect";

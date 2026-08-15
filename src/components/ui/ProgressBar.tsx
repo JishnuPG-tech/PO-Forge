@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+
 
 export interface ProgressBarProps {
   value: number; // 0 to 100

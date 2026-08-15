@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+
 import { Lock, PieChart, Check, RotateCw, CheckCheck, AlertCircle } from "lucide-react";
 
 export type TopicState = "LOCKED" | "LEARNING" | "AVAILABLE" | "NEEDS_REVISION" | "MASTERED";

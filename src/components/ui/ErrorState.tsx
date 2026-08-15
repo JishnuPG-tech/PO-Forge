@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+
 import { Button } from "./Button";
 import { Card } from "./Card";
 import { AlertTriangle } from "lucide-react";

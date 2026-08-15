@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
+
 import { Search, ArrowRight, BookOpen, HelpCircle, Bot, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 

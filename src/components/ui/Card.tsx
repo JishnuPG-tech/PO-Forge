@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "surface2" | "mission" | "outline";
