@@ -32,10 +32,10 @@ export default function Home() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   // Dynamic Settings States from Candidate Settings & localStorage
-  const [candidateName, setCandidateName] = useState("Jishnu");
+  const [candidateName, setCandidateName] = useState("Candidate");
   const [targetExam, setTargetExam] = useState("IBPS RRB PO");
   const [examDate, setExamDate] = useState("2026-09-27");
-  const [daysRemaining, setDaysRemaining] = useState(43);
+  const [daysRemaining, setDaysRemaining] = useState(0);
   const [dailyTargetNum, setDailyTargetNum] = useState(90);
 
   // Backend API data states
@@ -47,7 +47,7 @@ export default function Home() {
   const [quantTarget, setQuantTarget] = useState<number>(25);
 
   const calculateDaysRemaining = (targetDateStr: string) => {
-    if (!targetDateStr) return 43;
+    if (!targetDateStr) return 0;
     const today = new Date();
     const target = new Date(targetDateStr);
     const diffTime = target.getTime() - today.getTime();
@@ -124,23 +124,23 @@ export default function Home() {
     syncSettingsState();
   };
 
-  const streakDays = analytics?.streak_days ?? 12;
-  const masteryPct = analytics?.overall_mastery_percentage ?? 76;
-  const accuracyPct = analytics?.overall_accuracy_percentage ?? 84;
-  const speedSec = analytics?.average_speed_seconds ?? 42.5;
+  const streakDays = analytics?.streak_days ?? 0;
+  const masteryVal = analytics?.overall_mastery_percentage;
+  const accuracyVal = analytics?.overall_accuracy_percentage;
+  const speedVal = analytics?.average_speed_seconds;
 
-  const quantCompleted = missionData?.sections.find((s) => s.subject_code === "QUANT")?.completed_count ?? 8;
-  const reasoningCompleted = missionData?.sections.find((s) => s.subject_code === "REASONING")?.completed_count ?? 14;
+  const quantCompleted = missionData?.sections.find((s) => s.subject_code === "QUANT")?.completed_count ?? 0;
+  const reasoningCompleted = missionData?.sections.find((s) => s.subject_code === "REASONING")?.completed_count ?? 0;
   const englishCompleted = missionData?.sections.find((s) => s.subject_code === "ENGLISH")?.completed_count ?? 0;
   const gaCompleted = missionData?.sections.find((s) => s.subject_code === "GA_BANKING")?.completed_count ?? 0;
 
   const totalCompleted = missionData?.completed_question_count ?? (quantCompleted + reasoningCompleted + englishCompleted + gaCompleted);
-  // Total target dynamically calculated from user's Daily Target Setting
-  const totalTarget = dailyTargetNum || missionData?.target_question_count || 90;
-  const progressPct = totalTarget > 0 ? Math.round((totalCompleted / totalTarget) * 100) : 24;
+  const totalTarget = dailyTargetNum || missionData?.target_question_count || 0;
+  const progressPct = totalTarget > 0 ? Math.round((totalCompleted / totalTarget) * 100) : 0;
 
-  const accuracyData = analytics?.historical_trends?.map((t) => t.accuracy) || [74, 76, 78, 80, 82, 83, 84];
-  const speedData = analytics?.historical_trends?.map((t) => t.speed) || [52, 49, 47, 46, 44, 43, 42.5];
+  const accuracyData = analytics?.historical_trends?.map((t) => t.accuracy) || [];
+  const speedData = analytics?.historical_trends?.map((t) => t.speed) || [];
+
 
   return (
     <GlobalShell>
@@ -297,13 +297,17 @@ export default function Home() {
             <Card variant="default" className="p-5 space-y-3 border border-[#2B2825] bg-[#121110] rounded-2xl">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-[#A39E98] font-bold">OVERALL MASTERY</span>
-                <span className="text-emerald-400 font-bold">IRT Level {masteryPct}%</span>
+                <span className={masteryVal != null ? "text-emerald-400 font-bold" : "text-text-muted"}>
+                  {masteryVal != null ? `IRT Level ${masteryVal}%` : "No mastery data"}
+                </span>
               </div>
-              <div className="text-2xl font-extrabold text-text font-mono">{masteryPct}%</div>
+              <div className="text-2xl font-extrabold text-text font-mono">
+                {masteryVal != null ? `${masteryVal}%` : "--"}
+              </div>
               <div className="h-2 bg-[#100F0E] border border-[#262422] rounded-full overflow-hidden p-0.5">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-sm transition-all duration-500"
-                  style={{ width: `${masteryPct}%` }}
+                  style={{ width: `${masteryVal != null ? masteryVal : 0}%` }}
                 />
               </div>
             </Card>
@@ -311,21 +315,38 @@ export default function Home() {
             <Card variant="default" className="p-5 space-y-3 border border-[#2B2825] bg-[#121110] rounded-2xl">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-text-muted">ACCURACY TREND</span>
-                <span className="text-success font-bold">↑ 84%</span>
+                <span className={accuracyVal != null ? "text-success font-bold" : "text-text-muted"}>
+                  {accuracyVal != null ? `↑ ${accuracyVal}%` : "No attempts logged"}
+                </span>
               </div>
-              <div className="text-2xl font-extrabold text-text font-mono">{accuracyPct}%</div>
-              <Sparkline data={accuracyData} height={28} />
+              <div className="text-2xl font-extrabold text-text font-mono">
+                {accuracyVal != null ? `${accuracyVal}%` : "--"}
+              </div>
+              {accuracyData.length >= 2 ? (
+                <Sparkline data={accuracyData} height={28} />
+              ) : (
+                <div className="text-[11px] text-text-muted font-mono pt-1">Complete first session to plot trend</div>
+              )}
             </Card>
 
             <Card variant="default" className="p-5 space-y-3 border border-[#2B2825] bg-[#121110] rounded-2xl">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-text-muted font-bold">AVG SPEED PER ITEM</span>
-                <span className="text-[#E58038] font-bold">{speedSec}s</span>
+                <span className={speedVal != null ? "text-[#E58038] font-bold" : "text-text-muted"}>
+                  {speedVal != null ? `${speedVal}s` : "No timing data"}
+                </span>
               </div>
-              <div className="text-2xl font-extrabold text-text font-mono">{speedSec}s</div>
-              <Sparkline data={speedData} height={28} color="#E58038" />
+              <div className="text-2xl font-extrabold text-text font-mono">
+                {speedVal != null ? `${speedVal}s` : "--"}
+              </div>
+              {speedData.length >= 2 ? (
+                <Sparkline data={speedData} height={28} color="#E58038" />
+              ) : (
+                <div className="text-[11px] text-text-muted font-mono pt-1">Requires at least 2 attempts</div>
+              )}
             </Card>
           </div>
+
         </>
       )}
 

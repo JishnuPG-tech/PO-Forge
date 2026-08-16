@@ -15,16 +15,17 @@ export interface UserStudyData {
 const STORAGE_KEY = "poforge_user_data_v1";
 
 const DEFAULT_DATA: UserStudyData = {
-  streak: 12,
-  masteryPercent: 76,
-  questionsSolved: 4812,
-  mocksCompleted: 14,
+  streak: 0,
+  masteryPercent: 0,
+  questionsSolved: 0,
+  mocksCompleted: 0,
   targetExam: "IBPS RRB PO",
-  missionStatus: "in_progress",
-  missionProgress: 22,
-  missionScore: 82,
+  missionStatus: "not_started",
+  missionProgress: 0,
+  missionScore: 0,
   lastStudiedDate: new Date().toISOString().split("T")[0],
 };
+
 
 export const getStoredStudyData = (): UserStudyData => {
   if (typeof window === "undefined") return DEFAULT_DATA;

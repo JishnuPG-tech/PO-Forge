@@ -285,8 +285,9 @@ export const GlobalShell: React.FC<GlobalShellProps> = ({ children }) => {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 text-[11px] font-mono font-semibold text-warning bg-warning/10 border border-warning/30 px-2 py-0.5 rounded-full">
             <Flame className="w-3.5 h-3.5 fill-warning" />
-            <span>{userProfile?.streak_days ?? 12}d</span>
+            <span>{userProfile?.streak_days ?? 0}d</span>
           </div>
+
 
           <button
             onClick={() => setIsCmdPaletteOpen(true)}
@@ -400,17 +401,18 @@ export const GlobalShell: React.FC<GlobalShellProps> = ({ children }) => {
                   {googleUser?.picture ? (
                     <img src={googleUser.picture} alt={googleUser.name} className="w-full h-full object-cover" />
                   ) : (
-                    <span>{googleUser?.name ? googleUser.name.charAt(0).toUpperCase() : userProfile?.full_name ? userProfile.full_name.charAt(0).toUpperCase() : "J"}</span>
+                    <span>{googleUser?.name ? googleUser.name.charAt(0).toUpperCase() : userProfile?.full_name ? userProfile.full_name.charAt(0).toUpperCase() : "C"}</span>
                   )}
                 </div>
                 <div className="truncate">
                   <div className="font-bold text-text truncate">
-                    {googleUser?.name || userProfile?.full_name || "Candidate Jishnu"}
+                    {googleUser?.name || userProfile?.full_name || "Candidate"}
                   </div>
                   <div className="text-[10px] text-text-muted truncate">
-                    {googleUser?.email || userProfile?.email || "student@poforge.ai"}
+                    {googleUser?.email || userProfile?.email || "candidate@poforge.ai"}
                   </div>
                 </div>
+
               </Link>
             </div>
           </div>

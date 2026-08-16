@@ -90,37 +90,45 @@ export default function AnalysisPage() {
     loadData();
   }, []);
 
-  const overallMastery = analytics?.overall_mastery_percentage ?? 76.2;
-  const overallAccuracy = analytics?.overall_accuracy_percentage ?? 84.1;
-  const avgSpeed = analytics?.average_speed_seconds ?? 42.5;
-  const revisionHealth = analytics?.revision_health_percentage ?? 88;
-  const readinessState = analytics?.readiness_state || "COMPETITIVE";
+  const overallMastery = analytics?.overall_mastery_percentage ?? null;
+  const overallAccuracy = analytics?.overall_accuracy_percentage ?? null;
+  const avgSpeed = analytics?.average_speed_seconds ?? null;
+  const revisionHealth = analytics?.revision_health_percentage ?? null;
+  const readinessState = analytics?.readiness_state || "DEVELOPING";
 
-  const quantMastery = analytics?.subject_mastery?.["QUANT"] ?? 74;
-  const reasoningMastery = analytics?.subject_mastery?.["REASONING"] ?? 84.5;
-  const englishMastery = analytics?.subject_mastery?.["ENGLISH"] ?? 79;
-  const gaMastery = analytics?.subject_mastery?.["GA_BANKING"] ?? 68;
+  const quantMastery = analytics?.subject_mastery?.["QUANT"] ?? null;
+  const reasoningMastery = analytics?.subject_mastery?.["REASONING"] ?? null;
+  const englishMastery = analytics?.subject_mastery?.["ENGLISH"] ?? null;
+  const gaMastery = analytics?.subject_mastery?.["GA_BANKING"] ?? null;
 
-  const accuracyTrend = analytics?.historical_trends?.map((t) => t.accuracy) || [72, 76, 74, 79, 81, 83, 84];
-  const speedTrend = analytics?.historical_trends?.map((t) => t.speed) || [58, 54, 52, 49, 47, 44, 42.5];
-  const questionsTrend = [30, 45, 60, 75, 90, 85, 90];
-  const mockScoreTrend = [62, 68, 71, 74, 78, 80, 82];
+  const accuracyTrend = analytics?.historical_trends?.map((t) => t.accuracy) || [];
+  const speedTrend = analytics?.historical_trends?.map((t) => t.speed) || [];
+  const hasSubjectData = quantMastery != null || reasoningMastery != null || englishMastery != null || gaMastery != null;
 
   // Subject Mastery Donut Data
-  const subjectPieData: PieSegment[] = [
-    { label: "Quantitative Aptitude", value: quantMastery, color: "#FF7A1A", displayVal: `${quantMastery}%` },
-    { label: "Reasoning Ability", value: reasoningMastery, color: "#3FBE73", displayVal: `${reasoningMastery}%` },
-    { label: "English Language", value: englishMastery, color: "#38BDF8", displayVal: `${englishMastery}%` },
-    { label: "GA & Banking Awareness", value: gaMastery, color: "#A855F7", displayVal: `${gaMastery}%` },
-  ];
+  const subjectPieData: PieSegment[] = hasSubjectData
+    ? [
+        { label: "Quantitative Aptitude", value: quantMastery ?? 0, color: "#FF7A1A", displayVal: `${quantMastery ?? 0}%` },
+        { label: "Reasoning Ability", value: reasoningMastery ?? 0, color: "#3FBE73", displayVal: `${reasoningMastery ?? 0}%` },
+        { label: "English Language", value: englishMastery ?? 0, color: "#38BDF8", displayVal: `${englishMastery ?? 0}%` },
+        { label: "GA & Banking Awareness", value: gaMastery ?? 0, color: "#A855F7", displayVal: `${gaMastery ?? 0}%` },
+      ]
+    : [
+        { label: "No Mastery Data Yet", value: 100, color: "#262422", displayVal: "0%" },
+      ];
 
   // Accuracy Breakdown Donut Data
-  const incorrectPct = Number((100 - overallAccuracy - 4.0).toFixed(1));
-  const accuracyPieData: PieSegment[] = [
-    { label: "Correct Answers", value: overallAccuracy, color: "#3FBE73", displayVal: `${overallAccuracy}%` },
-    { label: "Incorrect Answers", value: incorrectPct, color: "#F25C5C", displayVal: `${incorrectPct}%` },
-    { label: "Skipped / Unattempted", value: 4.0, color: "#737373", displayVal: "4.0%" },
-  ];
+  const hasAccuracyData = overallAccuracy != null && overallAccuracy > 0;
+  const incorrectPct = overallAccuracy != null ? Number(Math.max(0, 100 - overallAccuracy).toFixed(1)) : 0;
+  const accuracyPieData: PieSegment[] = hasAccuracyData
+    ? [
+        { label: "Correct Answers", value: overallAccuracy, color: "#3FBE73", displayVal: `${overallAccuracy}%` },
+        { label: "Incorrect Answers", value: incorrectPct, color: "#F25C5C", displayVal: `${incorrectPct}%` },
+      ]
+    : [
+        { label: "No Attempts Logged", value: 100, color: "#262422", displayVal: "0%" },
+      ];
+
 
   return (
     <GlobalShell>
@@ -316,28 +324,45 @@ export default function AnalysisPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-1">
               <div className="p-3.5 bg-[#161513] rounded-2xl border border-[#262422] space-y-2">
                 <span className="text-[11px] text-[#A39E98]">Accuracy Trend</span>
-                <div className="text-lg font-extrabold text-text">{overallAccuracy}%</div>
-                <Sparkline data={accuracyTrend} width={130} height={30} />
+                <div className="text-lg font-extrabold text-text">
+                  {overallAccuracy != null ? `${overallAccuracy}%` : "--"}
+                </div>
+                {accuracyTrend.length >= 2 ? (
+                  <Sparkline data={accuracyTrend} width={130} height={30} />
+                ) : (
+                  <div className="text-[10px] text-text-muted font-mono">No trend data</div>
+                )}
               </div>
 
               <div className="p-3.5 bg-[#161513] rounded-2xl border border-[#262422] space-y-2">
                 <span className="text-[11px] text-[#A39E98]">Speed Trend</span>
-                <div className="text-lg font-extrabold text-text">{avgSpeed}s</div>
-                <Sparkline data={speedTrend} width={130} height={30} />
+                <div className="text-lg font-extrabold text-text">
+                  {avgSpeed != null ? `${avgSpeed}s` : "--"}
+                </div>
+                {speedTrend.length >= 2 ? (
+                  <Sparkline data={speedTrend} width={130} height={30} />
+                ) : (
+                  <div className="text-[10px] text-text-muted font-mono">No timing data</div>
+                )}
               </div>
 
               <div className="p-3.5 bg-[#161513] rounded-2xl border border-[#262422] space-y-2">
-                <span className="text-[11px] text-[#A39E98]">Questions Completed</span>
-                <div className="text-lg font-extrabold text-text">90 Qs / day</div>
-                <Sparkline data={questionsTrend} width={130} height={30} />
+                <span className="text-[11px] text-[#A39E98]">Total Attempted</span>
+                <div className="text-lg font-extrabold text-text">
+                  {analytics?.total_attempts_count != null ? `${analytics.total_attempts_count} Qs` : "--"}
+                </div>
+                <div className="text-[10px] text-text-muted font-mono">Lifetime questions solved</div>
               </div>
 
               <div className="p-3.5 bg-[#161513] rounded-2xl border border-[#262422] space-y-2">
-                <span className="text-[11px] text-[#A39E98]">Mock Score</span>
-                <div className="text-lg font-extrabold text-text">78 / 80</div>
-                <Sparkline data={mockScoreTrend} width={130} height={30} />
+                <span className="text-[11px] text-[#A39E98]">Revision Health</span>
+                <div className="text-lg font-extrabold text-text">
+                  {revisionHealth != null ? `${revisionHealth}%` : "--"}
+                </div>
+                <div className="text-[10px] text-text-muted font-mono">SM-2 memory retention</div>
               </div>
             </div>
+
           </Card>
         </>
       )}
