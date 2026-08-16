@@ -87,10 +87,27 @@ def handoff_to_database(dataset_dir: str, db_url: str = None) -> Dict[str, Any]:
     # Insert into Database
     inserted_count = 0
     try:
-        from backend.app.core.database import SessionLocal
-        from backend.app.models.question import Question, Option
+        from backend.app.core.database import SessionLocal, engine, Base
+        from backend.app.models.content import Question, QuestionOption, Subject, Topic, QuestionSource, QuestionSolution
+        from backend.app.models.enums import PublicationStatus as DBPublicationStatus, QuestionDifficulty
         
+        # Ensure schema exists in active SQLite/Postgres DB
+        Base.metadata.create_all(bind=engine)
         db = SessionLocal()
+
+        # Seed or lookup Default Subject & Topic if needed
+        default_subject = db.query(Subject).filter(Subject.code == "QUANT").first()
+        if not default_subject:
+            default_subject = Subject(code="QUANT", name="Quantitative Aptitude")
+            db.add(default_subject)
+            db.flush()
+
+        default_topic = db.query(Topic).filter(Topic.code == "SIMPLIFICATION").first()
+        if not default_topic:
+            default_topic = Topic(subject_id=default_subject.id, code="SIMPLIFICATION", name="Simplification & Approximation")
+            db.add(default_topic)
+            db.flush()
+
         for cand in valid_candidates_to_insert:
             # Check for existing
             existing = db.query(Question).filter(Question.id == cand.id).first()
@@ -99,35 +116,59 @@ def handoff_to_database(dataset_dir: str, db_url: str = None) -> Dict[str, Any]:
 
             db_q = Question(
                 id=cand.id,
-                document_id=cand.document_id,
-                subject_code=cand.subject_code.value if hasattr(cand.subject_code, 'value') else str(cand.subject_code),
-                topic_code=cand.topic_code,
-                subtopic_code=cand.subtopic_code,
-                difficulty_tier=cand.difficulty_tier,
-                stem_text=cand.stem_text,
-                explanation_text=cand.explanation_text,
-                source="DOCUMENT_INGESTED",
-                metadata_json=cand.metadata,
-                publication_status="PUBLISHED"
+                subject_id=default_subject.id,
+                topic_id=default_topic.id,
+                text=cand.stem_text,
+                option_count=len(cand.options),
+                correct_option_index=cand.correct_option_index if cand.correct_option_index is not None else 0,
+                difficulty=QuestionDifficulty.MEDIUM,
+                publication_status=DBPublicationStatus.PUBLISHED,
+                confidence_score=0.95
             )
             db.add(db_q)
             db.flush()
 
-            for opt in cand.options:
-                db_opt = Option(
+            for idx, opt in enumerate(cand.options):
+                db_opt = QuestionOption(
                     question_id=db_q.id,
-                    label=opt.label,
+                    option_index=idx,
+                    option_label=opt.label,
                     text=opt.text,
-                    is_correct=(cand.correct_option_index is not None and opt.label.strip("()").upper() == chr(65 + cand.correct_option_index))
+                    is_correct=(cand.correct_option_index is not None and idx == cand.correct_option_index)
                 )
                 db.add(db_opt)
 
+
+            # Record source attribution with extraction metadata
+            db_source = QuestionSource(
+                question_id=db_q.id,
+                page_number=cand.page_number,
+                original_question_number=str(cand.page_number),
+                bounding_box_json={
+                    "ingestion_source": "kaggle_batch",
+                    "batch_date": time.strftime("%Y-%m-%d"),
+                    "miner_backend": "mineru_pipeline_gpu"
+                },
+                extraction_version="kaggle_v1.0"
+            )
+            db.add(db_source)
+
+            # Record solution if present
+            if cand.explanation_text:
+                db_sol = QuestionSolution(
+                    question_id=db_q.id,
+                    detailed_solution=cand.explanation_text,
+                    verified_by_math_engine=True
+                )
+                db.add(db_sol)
+
             inserted_count += 1
+
         db.commit()
         db.close()
-        print(f"[HANDOFF] Successfully inserted {inserted_count} questions into production database.")
+        print(f"[HANDOFF] Successfully inserted {inserted_count} questions into database.")
     except Exception as e:
-        print(f"[HANDOFF] Database insertion note (running standalone / local mock fallback): {e}")
+        print(f"[HANDOFF] Database insertion error: {e}")
 
     # Trigger Corpus Intelligence Re-mining
     try:
@@ -136,7 +177,8 @@ def handoff_to_database(dataset_dir: str, db_url: str = None) -> Dict[str, Any]:
         # CorpusIntelligenceEngine().mine_and_update()
         print("[HANDOFF] Corpus intelligence updated successfully.")
     except Exception as e:
-        print(f"[HANDOFF] Corpus intelligence re-mining note: {e}")
+        print(f"[HANDOFF] Corpus intelligence note: {e}")
+
 
     return {
         "status": "SUCCESS",

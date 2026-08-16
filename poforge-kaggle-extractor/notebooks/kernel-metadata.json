@@ -1,0 +1,17 @@
+{
+  "id": "jishnupg2005/poforge-extractor-worker",
+  "title": "poforge-extractor-worker",
+  "code_file": "extract_and_validate.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": "true",
+  "enable_gpu": "true",
+  "enable_tpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "jishnupg2005/testbook-quant-benchmark"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
