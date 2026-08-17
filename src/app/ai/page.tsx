@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bot, Send, Sparkles, BookOpen, AlertCircle, FileText, CheckCircle2, Cpu, ArrowRight } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
+import { API_BASE_URL } from "@/lib/api/client";
 
 interface Message {
   id: string;
@@ -53,7 +54,7 @@ export default function AIPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/hermes/chat", {
+      const res = await fetch(`${API_BASE_URL}/hermes/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_message: query, task_category: "TUTORING" })

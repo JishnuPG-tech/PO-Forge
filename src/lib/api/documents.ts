@@ -1,4 +1,4 @@
-import { apiFetch } from "./client";
+import { apiFetch, API_BASE_URL } from "./client";
 import { DocumentResponse } from "./types";
 
 export const documentsApi = {
@@ -11,7 +11,7 @@ export const documentsApi = {
     const headers: Record<string, string> = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    const res = await fetch("http://localhost:8000/api/v1/documents/upload", {
+    const res = await fetch(`${API_BASE_URL}/documents/upload`, {
       method: "POST",
       headers,
       body: formData,
