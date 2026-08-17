@@ -37,14 +37,14 @@ def start_today_mission(current_user: UserTokenPayload = Depends(get_current_use
         "GA_BANKING": [{"code": "BANKING_AWARENESS", "state": "AVAILABLE"}]
     }
 
-    # Pull real published questions from live database
+    # Pull real published questions from live database across all active subjects
     db = SessionLocal()
     published_pool = []
     try:
         db_questions = db.query(Question).filter(
             Question.publication_status == PublicationStatus.PUBLISHED,
             Question.is_deleted == False
-        ).limit(100).all()
+        ).order_by(Question.created_at.desc()).limit(500).all()
         for q in db_questions:
             opts = db.query(QuestionOption).filter(QuestionOption.question_id == q.id).order_by(QuestionOption.option_index).all()
             published_pool.append({
