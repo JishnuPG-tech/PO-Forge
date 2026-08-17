@@ -1,4 +1,4 @@
-name: Build POForge Android APK
+name: Build Hermes Android APK
 
 on:
   push:
@@ -19,12 +19,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.x'
-          channel: 'stable'
-          cache: true
+      - name: Set up Flutter via Git
+        run: |
+          git clone --depth 1 -b 3.24.5 https://github.com/flutter/flutter.git $HOME/flutter
+          echo "$HOME/flutter/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -39,6 +37,6 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: poforge-release-apk
+          name: hermes-release-apk
           path: Mobile/conduit/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
