@@ -76,3 +76,24 @@ class HermesToolCall {
     );
   }
 }
+
+class HermesChatResponse {
+  final String response;
+  final String modelUsed;
+  final List<HermesToolCall> toolCalls;
+
+  HermesChatResponse({
+    required this.response,
+    required this.modelUsed,
+    required this.toolCalls,
+  });
+
+  factory HermesChatResponse.fromJson(Map<String, dynamic> json) {
+    final rawToolCalls = json['tool_calls'] as List<dynamic>? ?? [];
+    return HermesChatResponse(
+      response: json['response'] as String? ?? '',
+      modelUsed: json['model_used'] as String? ?? 'unknown',
+      toolCalls: rawToolCalls.map((e) => HermesToolCall.fromJson(e as Map<String, dynamic>)).toList(),
+    );
+  }
+}

@@ -33,6 +33,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
+      // Bridge Auth: Check for token in URL (used by mobile app to bypass race condition)
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get("token");
+        if (urlToken) {
+          localStorage.setItem("poforge_jwt_token", urlToken);
+          // Optional: Clean up URL after consumption
+          const newUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+      }
+
       const token = typeof window !== "undefined" ? localStorage.getItem("poforge_jwt_token") : null;
       if (!token) {
         setStatus("UNAUTHENTICATED");

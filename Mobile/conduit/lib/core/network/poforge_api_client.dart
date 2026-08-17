@@ -22,8 +22,8 @@ class PoforgeApiClient {
               aOptions: AndroidOptions(encryptedSharedPreferences: true),
             ) {
     _dio.options.baseUrl = this.baseUrl;
-    _dio.options.connectTimeout = const Duration(seconds: 30);
-    _dio.options.receiveTimeout = const Duration(seconds: 30);
+    _dio.options.connectTimeout = const Duration(seconds: 60);
+    _dio.options.receiveTimeout = const Duration(seconds: 60);
     _dio.options.headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -101,11 +101,33 @@ class PoforgeApiClient {
         await saveToken(token, data['user_id'] as String? ?? 'STUDENT_DEV_001');
         return token;
       }
+    } catch (e) {
+      // Re-throw to allow UI to handle real connectivity errors
+      rethrow;
+    }
+    return null;
+  }
+
+  Future<bool> validateToken() async {
+    try {
+      final response = await _dio.get('/auth/profile');
+      return response.statusCode == 200;
     } catch (_) {
-      // Fallback dev token for offline/demo reliability
-      const devToken = 'poforge_dev_jwt_token_2026';
-      await saveToken(devToken, 'STUDENT_DEV_001');
-      return devToken;
+      return false;
+    }
+  }
+
+  Future<HermesChatResponse?> chatWithHermes(String message) async {
+    try {
+      final response = await _dio.post('/hermes/chat', data: {
+        'user_message': message,
+        'task_category': 'TUTORING',
+      });
+      if (response.data != null) {
+        return HermesChatResponse.fromJson(response.data as Map<String, dynamic>);
+      }
+    } catch (e) {
+      rethrow;
     }
     return null;
   }

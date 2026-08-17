@@ -23,11 +23,6 @@ class _PoforgeWebViewPageState extends State<PoforgeWebViewPage> {
   bool _loading = true;
   final PoforgeApiClient _apiClient = PoforgeApiClient();
 
-  String get _targetUrl {
-    final cleanPath = widget.path.startsWith('/') ? widget.path : '/${widget.path}';
-    return 'https://po-forge.vercel.app$cleanPath';
-  }
-
   @override
   void initState() {
     super.initState();
@@ -52,6 +47,7 @@ class _PoforgeWebViewPageState extends State<PoforgeWebViewPage> {
             if (mounted) {
               setState(() => _loading = false);
             }
+            // Keep as fallback/backup
             await _injectAuthScript();
           },
           onWebResourceError: (WebResourceError error) {
@@ -60,8 +56,22 @@ class _PoforgeWebViewPageState extends State<PoforgeWebViewPage> {
             }
           },
         ),
-      )
-      ..loadRequest(Uri.parse(_targetUrl));
+      );
+
+    _loadInitialRequest();
+  }
+
+  Future<void> _loadInitialRequest() async {
+    final token = await _apiClient.getToken();
+    final cleanPath = widget.path.startsWith('/') ? widget.path : '/${widget.path}';
+    String url = 'https://po-forge.vercel.app$cleanPath';
+
+    if (token != null && token.isNotEmpty) {
+      final separator = url.contains('?') ? '&' : '?';
+      url = '$url${separator}token=$token';
+    }
+
+    await _controller.loadRequest(Uri.parse(url));
   }
 
   Future<void> _injectAuthScript() async {

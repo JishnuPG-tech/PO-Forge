@@ -17,7 +17,7 @@ class _PoforgeMainShellState extends State<PoforgeMainShell> {
       case 0:
         return const PoforgeWebViewPage(
           key: ValueKey('tab_today'),
-          path: '/today',
+          path: '/',
           title: 'Daily Mission',
         );
       case 1:
@@ -40,8 +40,10 @@ class _PoforgeMainShellState extends State<PoforgeMainShell> {
         );
       case 4:
       default:
-        return const ChatPage(
-          key: ValueKey('tab_coach'),
+        return ChatPage(
+          key: const ValueKey('tab_coach'),
+          onNavigateToMock: () => setState(() => _currentIndex = 2),
+          onNavigateToAnalysis: () => setState(() => _currentIndex = 3),
         );
     }
   }

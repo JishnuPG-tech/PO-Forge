@@ -63,6 +63,8 @@ class AuthGateScreen extends StatefulWidget {
 }
 
 class _AuthGateScreenState extends State<AuthGateScreen> {
+  String _statusMessage = 'Connecting to Hermes...';
+
   @override
   void initState() {
     super.initState();
@@ -74,24 +76,37 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
   Future<void> _checkAuth() async {
     try {
       final apiClient = PoforgeApiClient();
+
+      setState(() => _statusMessage = 'Checking local session...');
       final token = await apiClient.getToken();
       
       if (!mounted) return;
 
       if (token != null && token.isNotEmpty) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const PoforgeMainShell()),
-        );
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
-        );
+        setState(() => _statusMessage = 'Waking up backend coach (this may take 30s)...');
+        // Verify token is still valid against backend
+        final isValid = await apiClient.validateToken();
+
+        if (!mounted) return;
+
+        if (isValid) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const PoforgeMainShell()),
+          );
+          return;
+        } else {
+          // Token expired or invalid, clear it
+          await apiClient.clearAuth();
+        }
       }
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
+      );
     } catch (_) {
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
-        );
+        setState(() => _statusMessage = 'Backend unreachable. Retrying...');
+        Future.delayed(const Duration(seconds: 3), () => _checkAuth());
       }
     }
   }
@@ -142,6 +157,15 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
                 valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7A1A)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _statusMessage,
+              style: const TextStyle(
+                color: Color(0xFF525252),
+                fontSize: 11,
+                fontStyle: FontStyle.italic,
               ),
             ),
           ],

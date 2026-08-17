@@ -21,6 +21,8 @@ class _PoforgeLoginPageState extends State<PoforgeLoginPage> {
     });
 
     try {
+      // If it's a cold start, this could take a while.
+      // We show a more descriptive loading state.
       final token = await _apiClient.login();
       if (token != null && mounted) {
         Navigator.of(context).pushReplacement(
@@ -34,7 +36,7 @@ class _PoforgeLoginPageState extends State<PoforgeLoginPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error connecting to POForge backend.';
+        _errorMessage = 'Error connecting to POForge backend. (The server may be waking up, please try again in 30s)';
         _loading = false;
       });
     }

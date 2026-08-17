@@ -26,7 +26,14 @@ class ChatMessage {
 }
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final VoidCallback? onNavigateToMock;
+  final VoidCallback? onNavigateToAnalysis;
+
+  const ChatPage({
+    super.key,
+    this.onNavigateToMock,
+    this.onNavigateToAnalysis,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -59,71 +66,38 @@ class _ChatPageState extends State<ChatPage> {
     });
     _scrollToBottom();
 
-    // Contextual Coach Simulation / API call
     try {
-      if (text.toLowerCase().contains('practice') || text.toLowerCase().contains('question')) {
-        // Fetch actual question from POForge backend
-        final questions = await _apiClient.searchQuestions(limit: 1);
-        if (questions.isNotEmpty) {
-          setState(() {
+      // Call real Hermes API
+      final response = await _apiClient.chatWithHermes(text);
+
+      if (response != null) {
+        setState(() {
+          // Add the main response message
+          _messages.add(
+            ChatMessage(
+              sender: 'assistant',
+              text: response.response,
+            ),
+          );
+
+          // Render any tool calls (like questions or analysis)
+          for (final toolCall in response.toolCalls) {
+            PoforgeQuestion? extractedQuestion;
+            if (toolCall.toolName == 'generate_practice_question' && toolCall.result != null) {
+              try {
+                extractedQuestion = PoforgeQuestion.fromJson(toolCall.result as Map<String, dynamic>);
+              } catch (_) {}
+            }
+
             _messages.add(
               ChatMessage(
                 sender: 'assistant',
-                text: 'Here is a targeted question from your active syllabus:',
-                question: questions.first,
+                text: '', // Tool calls usually have their own UI cards
+                toolCall: toolCall,
+                question: extractedQuestion,
               ),
             );
-          });
-        } else {
-          setState(() {
-            _messages.add(
-              ChatMessage(
-                sender: 'assistant',
-                text: 'Here is a recommended Profit & Loss practice question:',
-                question: PoforgeQuestion(
-                  questionId: 'QA_PL_042',
-                  subjectCode: 'QUANT',
-                  topicCode: 'PROFIT_LOSS',
-                  text: 'A shopkeeper marks an article 40% above cost price and allows a discount of 15%. Find his profit percentage.',
-                  options: ['15%', '18%', '19%', '21%', 'None of these'],
-                  correctOptionIndex: 2,
-                  shortcut: 'Net Change Formula: +40 - 15 - (40*15)/100 = 25 - 6 = +19%',
-                  explanation: 'Let CP = 100. MP = 140. SP = 140 * 0.85 = 119. Profit = 119 - 100 = 19%.',
-                ),
-              ),
-            );
-          });
-        }
-      } else if (text.toLowerCase().contains('mock')) {
-        setState(() {
-          _messages.add(
-            ChatMessage(
-              sender: 'assistant',
-              text: 'I have configured your full-length mock simulation:',
-              isMockPrompt: true,
-            ),
-          );
-        });
-      } else if (text.toLowerCase().contains('analysis') || text.toLowerCase().contains('readiness')) {
-        setState(() {
-          _messages.add(
-            ChatMessage(
-              sender: 'assistant',
-              text: 'Here is your current exam readiness overview:',
-              isAnalysisSnapshot: true,
-            ),
-          );
-        });
-      } else {
-        // Standard conversational Hermes response
-        await Future.delayed(const Duration(milliseconds: 600));
-        setState(() {
-          _messages.add(
-            ChatMessage(
-              sender: 'assistant',
-              text: 'Understood. Let us maintain high accuracy and pacing. Would you like a targeted **Practice Question**, a **Full Mock**, or an **Analysis Snapshot**?',
-            ),
-          );
+          }
         });
       }
     } catch (e) {
@@ -131,7 +105,7 @@ class _ChatPageState extends State<ChatPage> {
         _messages.add(
           ChatMessage(
             sender: 'assistant',
-            text: 'I am ready. Ask for a practice question, start a mock, or request an analysis breakdown.',
+            text: 'I encountered a connection issue. Please check your internet or try again in a moment. (Error: ${e.toString()})',
           ),
         );
       });
@@ -312,16 +286,17 @@ class _ChatPageState extends State<ChatPage> {
                         title: 'IBPS RRB PO Prelims — Mock 1',
                         totalQuestions: 80,
                         timeLimitMinutes: 45,
-                        onStart: () {
-                          // Hand-off to Mock WebView
-                        },
+                        onStart: widget.onNavigateToMock,
                       ),
                     if (msg.isAnalysisSnapshot)
-                      AnalysisSnapshotCard(
-                        readiness: 'COMPETITIVE',
-                        mastery: 76,
-                        accuracy: 84,
-                        speed: 72,
+                      InkWell(
+                        onTap: widget.onNavigateToAnalysis,
+                        child: AnalysisSnapshotCard(
+                          readiness: 'COMPETITIVE',
+                          mastery: 76,
+                          accuracy: 84,
+                          speed: 72,
+                        ),
                       ),
                   ],
                 );
