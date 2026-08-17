@@ -36,7 +36,7 @@ export default function Home() {
   const [targetExam, setTargetExam] = useState("IBPS RRB PO");
   const [examDate, setExamDate] = useState("2026-09-27");
   const [daysRemaining, setDaysRemaining] = useState(0);
-  const [dailyTargetNum, setDailyTargetNum] = useState(90);
+  const [dailyTargetNum, setDailyTargetNum] = useState<number | null>(null);
 
   // Backend API data states
   const [analytics, setAnalytics] = useState<AnalyticsResponse | null>(null);
@@ -56,6 +56,14 @@ export default function Home() {
   };
 
   const syncSettingsState = () => {
+    // Invalidate legacy mock localStorage artifacts
+    if (typeof window !== "undefined") {
+      const legacyStreak = localStorage.getItem("poforge_streak");
+      if (legacyStreak === "12") {
+        localStorage.removeItem("poforge_streak");
+      }
+    }
+
     const savedName = localStorage.getItem("poforge_candidate_name");
     const savedExam = localStorage.getItem("poforge_target_exam");
     const savedDate = localStorage.getItem("poforge_exam_date");
@@ -64,8 +72,10 @@ export default function Home() {
 
     if (googleUser?.name) {
       setCandidateName(googleUser.name);
-    } else if (savedName) {
+    } else if (savedName && savedName !== "Candidate") {
       setCandidateName(savedName);
+    } else {
+      setCandidateName("Candidate");
     }
 
     if (savedExam) setTargetExam(savedExam);

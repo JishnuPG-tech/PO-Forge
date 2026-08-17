@@ -1,5 +1,15 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL.replace(/\/$/, "");
+  }
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
+    // Production environment without configured base URL
+    console.error("[POForge] NEXT_PUBLIC_API_BASE_URL is not configured in production environment.");
+  }
+  return "http://localhost:8000/api/v1";
+};
 
+export const API_BASE_URL = getApiBaseUrl();
 
 export interface ApiError {
   statusCode: number;
@@ -22,7 +32,8 @@ export async function apiFetch<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const url = endpoint.startsWith("http") ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const base = getApiBaseUrl();
+  const url = endpoint.startsWith("http") ? endpoint : `${base}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
 
   try {
     const res = await fetch(url, {

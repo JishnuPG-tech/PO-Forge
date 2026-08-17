@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 
 from backend.app.api.deps import get_current_user, UserTokenPayload
+from backend.app.core.database import SessionLocal
+from backend.app.models.content import Question, QuestionOption, Subject, Topic
 from backend.app.services.mission_engine.mission_lifecycle import DailyMissionLifecycleManager
 from backend.app.services.mission_engine.schemas import DailyMissionState, MissionReport, MissionStatus
 
@@ -34,10 +36,23 @@ def start_today_mission(current_user: UserTokenPayload = Depends(get_current_use
         "GA_BANKING": [{"code": "BANKING_AWARENESS", "state": "AVAILABLE"}]
     }
 
-    published_pool = [
-        {"question_id": "Q_101", "subject_code": "QUANT", "topic_code": "SIMPLIFICATION", "text": "What is 25 * 4?", "options": ["(A) 100", "(B) 120"], "correct_option_index": 0},
-        {"question_id": "Q_102", "subject_code": "REASONING", "topic_code": "SYLLOGISM", "text": "All A are B.", "options": ["(A) Conclusion I", "(B) Conclusion II"], "correct_option_index": 0}
-    ]
+    # Pull real published questions from live database
+    db = SessionLocal()
+    published_pool = []
+    try:
+        db_questions = db.query(Question).limit(100).all()
+        for q in db_questions:
+            opts = db.query(QuestionOption).filter(QuestionOption.question_id == q.id).order_by(QuestionOption.option_index).all()
+            published_pool.append({
+                "question_id": q.id,
+                "subject_code": q.subject.code if q.subject else "QUANT",
+                "topic_code": q.topic.code if q.topic else "SIMPLIFICATION",
+                "text": q.text,
+                "options": [f"{o.option_label} {o.text}" for o in opts],
+                "correct_option_index": q.correct_option_index or 0
+            })
+    finally:
+        db.close()
 
     total_target = sum(MISSION_CONFIG_STORE.values())
 
@@ -65,10 +80,27 @@ def submit_question_attempt(
 ):
     manager = DailyMissionLifecycleManager()
     
-    # Initialize sample active mission state
+    # Initialize active mission state with live questions pool
+    db = SessionLocal()
+    published_pool = []
+    try:
+        db_questions = db.query(Question).limit(100).all()
+        for q in db_questions:
+            opts = db.query(QuestionOption).filter(QuestionOption.question_id == q.id).order_by(QuestionOption.option_index).all()
+            published_pool.append({
+                "question_id": q.id,
+                "subject_code": q.subject.code if q.subject else "QUANT",
+                "topic_code": q.topic.code if q.topic else "SIMPLIFICATION",
+                "text": q.text,
+                "options": [f"{o.option_label} {o.text}" for o in opts],
+                "correct_option_index": q.correct_option_index or 0
+            })
+    finally:
+        db.close()
+
     enabled_subjects = ["QUANT", "REASONING"]
     enabled_topics_map = {"QUANT": [{"code": "SIMPLIFICATION", "state": "AVAILABLE"}]}
-    state = manager.start_daily_mission(current_user.user_id, enabled_subjects, enabled_topics_map, [], [])
+    state = manager.start_daily_mission(current_user.user_id, enabled_subjects, enabled_topics_map, [], published_pool)
 
     updated_state, q_item = manager.submit_mission_question(
         state=state,
@@ -96,7 +128,6 @@ def update_mission_config(
     req: UpdateMissionConfigRequest,
     current_user: UserTokenPayload = Depends(get_current_user)
 ):
-    # Store requested custom subject target
     MISSION_CONFIG_STORE[req.subject_code] = req.target_count
 
     return {
