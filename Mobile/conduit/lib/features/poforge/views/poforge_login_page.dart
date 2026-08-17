@@ -21,7 +21,7 @@ class _PoforgeLoginPageState extends State<PoforgeLoginPage> {
     });
 
     try {
-      final token = await _apiClient.login('STUDENT_DEV_001');
+      final token = await _apiClient.login();
       if (token != null && mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const PoforgeMainShell()),
@@ -52,27 +52,27 @@ class _PoforgeLoginPageState extends State<PoforgeLoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(),
-              // POForge Logo Mark
+              // Hermes Logo Mark
               Container(
-                width: 72,
-                height: 72,
+                width: 90,
+                height: 90,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFFF7A1A).withOpacity(0.3), width: 1.5),
-                ),
-                child: const Center(
-                  child: Icon(Icons.bolt, color: Color(0xFFFF7A1A), size: 40),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: const Color(0xFFFF7A1A), width: 2),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/hermes_logo.png'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
               const Text(
-                'POForge',
+                'HERMES',
                 style: TextStyle(
                   color: Color(0xFFEDEDED),
                   fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: -0.5,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 3,
                 ),
               ),
               const SizedBox(height: 8),
@@ -120,8 +120,8 @@ class _PoforgeLoginPageState extends State<PoforgeLoginPage> {
                           child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2),
                         )
                       : const Text(
-                          'LOG IN',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                          'ENTER HERMES',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1),
                         ),
                 ),
               ),

@@ -213,16 +213,20 @@ class _ChatPageState extends State<ChatPage> {
         title: Row(
           children: [
             Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFFF7A1A),
+                border: Border.all(color: const Color(0xFFFF7A1A), width: 1.5),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/hermes_logo.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             const Text(
-              'POForge',
+              'Hermes Coach',
               style: TextStyle(
                 color: Color(0xFFEDEDED),
                 fontSize: 16,

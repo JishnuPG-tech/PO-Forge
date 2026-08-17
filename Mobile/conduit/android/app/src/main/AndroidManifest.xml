@@ -16,7 +16,7 @@
     </queries>
 
     <application
-        android:label="POForge"
+        android:label="Hermes"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"

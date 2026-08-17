@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/poforge/models/poforge_models.dart';
 
 class PoforgeApiClient {
@@ -16,7 +17,10 @@ class PoforgeApiClient {
     FlutterSecureStorage? storage,
   })  : baseUrl = baseUrl ?? 'https://po-forge.onrender.com/api/v1',
         _dio = dio ?? Dio(),
-        _storage = storage ?? const FlutterSecureStorage() {
+        _storage = storage ??
+            const FlutterSecureStorage(
+              aOptions: AndroidOptions(encryptedSharedPreferences: true),
+            ) {
     _dio.options.baseUrl = this.baseUrl;
     _dio.options.connectTimeout = const Duration(seconds: 30);
     _dio.options.receiveTimeout = const Duration(seconds: 30);
@@ -47,6 +51,12 @@ class PoforgeApiClient {
 
   Future<String?> getToken() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString(_tokenKey);
+      if (token != null && token.isNotEmpty) return token;
+    } catch (_) {}
+
+    try {
       return await _storage.read(key: _tokenKey);
     } catch (_) {
       return null;
@@ -54,13 +64,29 @@ class PoforgeApiClient {
   }
 
   Future<void> saveToken(String token, String userId) async {
-    await _storage.write(key: _tokenKey, value: token);
-    await _storage.write(key: _userIdKey, value: userId);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_tokenKey, token);
+      await prefs.setString(_userIdKey, userId);
+    } catch (_) {}
+
+    try {
+      await _storage.write(key: _tokenKey, value: token);
+      await _storage.write(key: _userIdKey, value: userId);
+    } catch (_) {}
   }
 
   Future<void> clearAuth() async {
-    await _storage.delete(key: _tokenKey);
-    await _storage.delete(key: _userIdKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_tokenKey);
+      await prefs.remove(_userIdKey);
+    } catch (_) {}
+
+    try {
+      await _storage.delete(key: _tokenKey);
+      await _storage.delete(key: _userIdKey);
+    } catch (_) {}
   }
 
   Future<String?> login([String email = 'student@poforge.dev', String password = 'demo_password']) async {

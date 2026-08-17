@@ -5,7 +5,7 @@ import 'core/network/poforge_api_client.dart';
 import 'features/poforge/views/poforge_login_page.dart';
 import 'features/poforge/views/poforge_main_shell.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Dark System UI Chrome
@@ -18,28 +18,20 @@ void main() async {
     ),
   );
 
-  final apiClient = PoforgeApiClient();
-  final token = await apiClient.getToken();
-  final initialHome = (token != null && token.isNotEmpty)
-      ? const PoforgeMainShell()
-      : const PoforgeLoginPage();
-
   runApp(
-    ProviderScope(
-      child: PoforgeApp(initialHome: initialHome),
+    const ProviderScope(
+      child: HermesApp(),
     ),
   );
 }
 
-class PoforgeApp extends StatelessWidget {
-  final Widget initialHome;
-
-  const PoforgeApp({super.key, required this.initialHome});
+class HermesApp extends StatelessWidget {
+  const HermesApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'POForge',
+      title: 'Hermes',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: ThemeData.dark().copyWith(
@@ -58,7 +50,101 @@ class PoforgeApp extends StatelessWidget {
           scrolledUnderElevation: 0,
         ),
       ),
-      home: initialHome,
+      home: const AuthGateScreen(),
+    );
+  }
+}
+
+class AuthGateScreen extends StatefulWidget {
+  const AuthGateScreen({super.key});
+
+  @override
+  State<AuthGateScreen> createState() => _AuthGateScreenState();
+}
+
+class _AuthGateScreenState extends State<AuthGateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    try {
+      final apiClient = PoforgeApiClient();
+      final token = await apiClient.getToken();
+      
+      if (!mounted) return;
+
+      if (token != null && token.isNotEmpty) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const PoforgeMainShell()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF000000),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFFF7A1A), width: 2),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/hermes_logo.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'HERMES',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 4,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'AI Banking Coach',
+              style: TextStyle(
+                color: Color(0xFF737373),
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 32),
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7A1A)),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
