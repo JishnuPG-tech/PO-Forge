@@ -3,7 +3,6 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android Gradle plugin.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -14,23 +13,20 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "app.cogwheel.conduit"
+    namespace = "com.poforge.coach"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "29.0.14206865"
 
     defaultConfig {
-    applicationId = "app.cogwheel.conduit"
-    minSdk = flutter.minSdkVersion
-    targetSdk = flutter.targetSdkVersion
-    versionCode = flutter.versionCode
-    versionName = flutter.versionName
+        applicationId = "com.poforge.coach"
+        minSdk = 24
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     compileOptions {
-        // Align with modern Android Gradle Plugin requirements
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // Enable core library desugaring for flutter_local_notifications
         isCoreLibraryDesugaringEnabled = true
     }
 
@@ -50,36 +46,21 @@ android {
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
         getByName("debug") {
-            // signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
+            // Debug defaults
         }
     }
 }
 
-kotlin {
-    compilerOptions {
-        // Generate JVM bytecode targeting Java 17.
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
-    }
-}
-
 dependencies {
-    // Core library desugaring for flutter_local_notifications
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
-    implementation("androidx.activity:activity:1.12.4")
-    implementation("com.google.mlkit:genai-speech-recognition:1.0.0-alpha1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    testImplementation("junit:junit:4.13.2")
-    // Real org.json for JVM unit tests; the mockable android.jar only stubs it.
-    testImplementation("org.json:json:20240303")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
 
 flutter {
