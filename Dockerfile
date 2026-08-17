@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install system dependencies for psycopg2 and build tools
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -14,10 +14,8 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy backend source code, shared modules, and migrations
+# Copy backend source code
 COPY backend /app/backend
-COPY shared /app/shared
-COPY poforge_prod.db /app/poforge_prod.db
 
 ENV PYTHONPATH=/app
 ENV PORT=8000
