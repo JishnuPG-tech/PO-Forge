@@ -49,4 +49,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cp Mobile/conduit/build/app/outputs/flutter-apk/app-release.apk ./Hermes-Coach-v1.0.0.apk
-          gh release create v1.0.0-hermes ./Hermes-Coach-v1.0.0.apk --title "Hermes AI Banking Coach v1.0.0" --notes "Official Hermes AI Coach Android release with pitch black theme, anime branding, and instant native Hermes chat." --clobber
+          # Check if release exists, if so upload to it, otherwise create it
+          if gh release view v1.0.0-hermes > /dev/null 2>&1; then
+            gh release upload v1.0.0-hermes ./Hermes-Coach-v1.0.0.apk --clobber
+          else
+            gh release create v1.0.0-hermes ./Hermes-Coach-v1.0.0.apk --title "Hermes AI Banking Coach v1.0.0" --notes "Official Hermes AI Coach Android release with pitch black theme, anime branding, and instant native Hermes chat."
+          fi
