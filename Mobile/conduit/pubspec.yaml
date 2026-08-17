@@ -1,119 +1,31 @@
 name: conduit
-description: POForge Hermes-First Android Coach
-version: 1.0.0+1
+description: "POForge - Personal AI Banking Coach"
 publish_to: 'none'
+version: 1.0.0+1
 
 environment:
-  sdk: ">=3.11.0 <4.0.0"
-  flutter: ">=3.41.0"
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: ">=3.16.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  flutter_driver:
-    sdk: flutter
-  
-  # State Management
-  flutter_riverpod: any
-  riverpod_annotation: any
-  
-  # Navigation
-  go_router: any
-  
-  # Network & API
-  dio: any
-  http: any
-  http_parser: any
-  socket_io_client: any
-  
-  # Storage
-  flutter_secure_storage: any
-  shared_preferences: any
-  hive_ce: any
-  hive_ce_flutter: any
-  synchronized: any
-  
-  # UI Components & Markdown Rendering
-  markdown: any
-  flutter_math_fork: any
-  flutter_svg: any
-  cached_network_image_ce: any
-  flutter_inappwebview: any
-  flutter_highlight: any
-  highlight: any
-  pdfrx: any
-  archive: any
-  xml: any
-  yaml: any
-  
-  # Modern Animations
-  flutter_animate: any
-  stupid_simple_sheet: any
-  
-  # Platform & Hardware Features
-  path_provider: any
-  permission_handler: any
-  image_picker: any
-  file_picker: any
-  flutter_image_compress: any
-  connectivity_plus: any
-  flutter_local_notifications: any
-  package_info_plus: any
-  url_launcher: any
-  wakelock_plus: any
-  share_plus: any
-  
-  # Utilities
-  path: any
-  uuid: any
-  crypto: any
-  intl: any
-  cupertino_icons: any
-  json_annotation: any
-  freezed_annotation: any
-  html_unescape: any
-  flutter_cache_manager: any
-  drift: any
-  drift_flutter: any
+  flutter_riverpod: ^2.5.1
+  dio: ^5.4.3+1
+  flutter_secure_storage: ^9.0.0
+  webview_flutter: ^4.10.0
+  flutter_markdown: ^0.7.3
+  flutter_math_fork: ^0.7.2
+  shared_preferences: ^2.2.2
+  intl: ^0.19.0
+  uuid: ^4.3.3
+  path_provider: ^2.1.2
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: any
-  build_runner: any
-  freezed: any
-  json_serializable: any
-  flutter_native_splash: any
-  riverpod_generator: any
-  riverpod_lint: any
-  mocktail: any
-  checks: any
-  collection: any
-  drift_dev: any
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
-  generate: true
-  
-  assets:
-    - THIRD_PARTY_NOTICES.md
-    - assets/icons/
-    - assets/release_notes/
-    - assets/flutter_tex.js
-    - assets/flutter_tex.css
-
-  fonts:
-    - family: Geist Sans
-      fonts:
-        - asset: assets/fonts/geist/Geist-Regular.ttf
-        - asset: assets/fonts/geist/Geist-Medium.ttf
-        - asset: assets/fonts/geist/Geist-SemiBold.ttf
-        - asset: assets/fonts/geist/Geist-Bold.ttf
-    - family: Geist Mono
-      fonts:
-        - asset: assets/fonts/geist_mono/GeistMono-Regular.ttf
-        - asset: assets/fonts/geist_mono/GeistMono-Medium.ttf
-        - asset: assets/fonts/geist_mono/GeistMono-SemiBold.ttf
-        - asset: assets/fonts/geist_mono/GeistMono-Bold.ttf
