@@ -9,27 +9,15 @@ export default function NotificationsPage() {
   const notifications = [
     {
       icon: <Bot className="w-4 h-4 text-accent" />,
-      title: "AI Coach Insight",
-      text: "Discount & marked price accuracy improved to 58% after yesterday's session.",
-      time: "2 hours ago",
+      title: "AI Coach Ready",
+      text: "Hermes AI Coach is initialized and ready for interactive guidance and problem diagnostics.",
+      time: "Just now",
     },
     {
       icon: <RotateCcw className="w-4 h-4 text-warning" />,
-      title: "Revision Due",
-      text: "12 questions due today in SuperMemo SM-2 queue.",
-      time: "5 hours ago",
-    },
-    {
-      icon: <Award className="w-4 h-4 text-success" />,
-      title: "Mock Milestone",
-      text: "Achieved 97.5% score on RRB PO Mock 05.",
-      time: "Yesterday",
-    },
-    {
-      icon: <Flame className="w-4 h-4 text-warning" />,
-      title: "Streak Maintained",
-      text: "12-day training streak maintained!",
-      time: "2 days ago",
+      title: "Daily Mission Ready",
+      text: "A fresh personalized problem set is ready in your Practice queue.",
+      time: "Today",
     },
   ];
 

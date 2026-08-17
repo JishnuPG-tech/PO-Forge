@@ -47,12 +47,12 @@ export default function MockHubPage() {
     loadData();
   }, []);
 
-  const overallAccuracy = analytics?.overall_accuracy_percentage ?? 84;
-  const overallMastery = analytics?.overall_mastery_percentage ?? 76;
-  const quantMastery = analytics?.subject_mastery?.["QUANT"] ?? 72;
-  const reasoningMastery = analytics?.subject_mastery?.["REASONING"] ?? 81;
+  const overallAccuracy = analytics?.overall_accuracy_percentage ?? null;
+  const overallMastery = analytics?.overall_mastery_percentage ?? null;
+  const quantMastery = analytics?.subject_mastery?.["QUANT"] ?? null;
+  const reasoningMastery = analytics?.subject_mastery?.["REASONING"] ?? null;
 
-  const weakestTopics = analytics?.weakest_topics || ["PROFIT_LOSS", "DATA_INTERPRETATION"];
+  const weakestTopics = analytics?.weakest_topics || [];
 
   // Filter 52 Exhaustive Topic Tests by Subject & Search Query
   const filteredTopicTests = EXHAUSTIVE_BANKING_TOPICS.filter((t) => {
@@ -62,16 +62,12 @@ export default function MockHubPage() {
   });
 
   const mockHistory = analytics?.historical_trends?.map((h, idx) => ({
-    title: `RRB PO Mock 0${idx + 1}`,
+    title: `Mock Test 0${idx + 1}`,
     score: `${Math.round((h.accuracy / 100) * 80)} / 80`,
     accuracy: `${h.accuracy}%`,
     time: `${Math.round(h.speed)}s avg`,
     trend: h.accuracy > 80 ? "up" : "flat",
-  })) || [
-    { title: "RRB PO Mock 03", score: "78 / 80", accuracy: `${overallAccuracy}%`, time: "43:11", trend: "up" },
-    { title: "RRB PO Mock 02", score: "74 / 80", accuracy: "92.5%", time: "44:02", trend: "up" },
-    { title: "RRB PO Mock 01", score: "68 / 80", accuracy: "85.0%", time: "43:48", trend: "flat" },
-  ];
+  })) || [];
 
   return (
     <GlobalShell>
@@ -449,30 +445,37 @@ export default function MockHubPage() {
               <div className="p-4 border-b border-border font-bold text-sm text-text">
                 Mock History
               </div>
-              <table className="w-full text-xs text-left">
-                <thead className="bg-surface-2 border-b border-border text-text-muted">
-                  <tr>
-                    <th className="p-3">Mock</th>
-                    <th className="p-3">Score</th>
-                    <th className="p-3">Accuracy</th>
-                    <th className="p-3">Time</th>
-                    <th className="p-3 text-right">Trend</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {mockHistory.map((h, i) => (
-                    <tr key={i} className="hover:bg-surface-2/40">
-                      <td className="p-3 font-sans font-medium text-text">{h.title}</td>
-                      <td className="p-3 text-text font-bold">{h.score}</td>
-                      <td className="p-3 text-success font-bold">{h.accuracy}</td>
-                      <td className="p-3 text-text-muted">{h.time}</td>
-                      <td className="p-3 text-right font-bold text-success">
-                        {h.trend === "up" ? "↑" : "→"}
-                      </td>
+              {mockHistory.length === 0 ? (
+                <div className="p-8 text-center space-y-2">
+                  <p className="text-sm font-bold text-text">No Mock Attempts Logged Yet</p>
+                  <p className="text-xs text-text-muted">Complete a Full Length or Sectional Mock to view your attempt history and trends here.</p>
+                </div>
+              ) : (
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-surface-2 border-b border-border text-text-muted">
+                    <tr>
+                      <th className="p-3">Mock</th>
+                      <th className="p-3">Score</th>
+                      <th className="p-3">Accuracy</th>
+                      <th className="p-3">Time</th>
+                      <th className="p-3 text-right">Trend</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {mockHistory.map((h, i) => (
+                      <tr key={i} className="hover:bg-surface-2/40">
+                        <td className="p-3 font-sans font-medium text-text">{h.title}</td>
+                        <td className="p-3 text-text font-bold">{h.score}</td>
+                        <td className="p-3 text-success font-bold">{h.accuracy}</td>
+                        <td className="p-3 text-text-muted">{h.time}</td>
+                        <td className="p-3 text-right font-bold text-success">
+                          {h.trend === "up" ? "↑" : "→"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </Card>
           )}
         </>

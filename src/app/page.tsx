@@ -144,8 +144,9 @@ export default function Home() {
   const englishCompleted = missionData?.sections.find((s) => s.subject_code === "ENGLISH")?.completed_count ?? 0;
   const gaCompleted = missionData?.sections.find((s) => s.subject_code === "GA_BANKING")?.completed_count ?? 0;
 
+  const effectiveTarget = dailyTargetNum || missionData?.target_question_count || 90;
   const totalCompleted = missionData?.completed_question_count ?? (quantCompleted + reasoningCompleted + englishCompleted + gaCompleted);
-  const totalTarget = dailyTargetNum || missionData?.target_question_count || 0;
+  const totalTarget = effectiveTarget;
   const progressPct = totalTarget > 0 ? Math.round((totalCompleted / totalTarget) * 100) : 0;
 
   const accuracyData = analytics?.historical_trends?.map((t) => t.accuracy) || [];
@@ -161,7 +162,7 @@ export default function Home() {
             Good morning, {candidateName.split(" ")[0]}
           </h1>
           <p className="text-xs text-text-muted mt-0.5">
-            Your daily target is set to <strong className="text-[#E58038] font-bold">{dailyTargetNum} questions</strong> for <strong className="text-text font-bold">{targetExam}</strong> ({daysRemaining} days remaining).
+            Your daily target is set to <strong className="text-[#E58038] font-bold">{effectiveTarget} questions</strong> for <strong className="text-text font-bold">{targetExam}</strong> ({daysRemaining} days remaining).
           </p>
         </div>
 
@@ -215,11 +216,11 @@ export default function Home() {
                     <span>DAILY MISSION • {targetExam}</span>
                   </span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#332218] border border-[#52331F] text-[#E58038] font-mono font-bold">
-                    Target: {dailyTargetNum} Qs
+                    Target: {effectiveTarget} Qs
                   </span>
                 </div>
                 <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-text font-sans">
-                  {missionState === "complete" ? "Today's Mission Completed! 🎉" : `Solve ${dailyTargetNum} Daily Target Questions`}
+                  {missionState === "complete" ? "Today's Mission Completed! 🎉" : `Solve ${effectiveTarget} Daily Target Questions`}
                 </h2>
                 <p className="text-xs text-text-muted font-mono">
                   Personalized problem set covering Quantitative Aptitude, Reasoning, English & Banking Awareness.

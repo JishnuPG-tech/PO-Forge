@@ -193,8 +193,8 @@ export default function RevisionPage() {
       {/* Tabs Row */}
       <div className="flex items-center gap-1.5 border-b border-border overflow-x-auto pb-1.5 font-mono text-xs scrollbar-none">
         {[
-          { id: "FLASHCARDS", label: "⚡ 5-Min Rapid Formula Deck", icon: Flame },
-          { id: "DUE_TODAY", label: "Due Today (12)", icon: Layers },
+          { id: "FLASHCARDS", label: `⚡ Rapid Formula Deck (${FORMULA_FLASHCARDS_DECK.length})`, icon: Flame },
+          { id: "DUE_TODAY", label: `Due Today (${FORMULA_FLASHCARDS_DECK.length})`, icon: Layers },
           { id: "UPCOMING", label: "Upcoming Queue", icon: Brain },
           { id: "RECOVERED", label: "Mastered Formulas", icon: CheckCircle2 },
         ].map((t) => {
