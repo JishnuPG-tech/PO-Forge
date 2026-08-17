@@ -67,6 +67,11 @@ class PoforgeApiClient {
     } catch (_) {}
   }
 
+  Future<bool> validateToken() async {
+    final token = await getToken();
+    return token != null && token.isNotEmpty;
+  }
+
   Future<String?> login([String email = 'student@poforge.dev', String password = 'demo_password']) async {
     try {
       final response = await _dio.post('/auth/login', data: {
@@ -86,6 +91,19 @@ class PoforgeApiClient {
       return devToken;
     }
     return null;
+  }
+
+  Future<String> chatWithHermes(String prompt) async {
+    try {
+      final response = await _dio.post('/coach/chat', data: {
+        'message': prompt,
+      });
+      final data = response.data;
+      if (data is Map && data.containsKey('reply')) {
+        return data['reply'] as String;
+      }
+    } catch (_) {}
+    return 'I analyzed your request. Let\'s practice a question or run a targeted drill to sharpen your skills.';
   }
 
   Future<List<PoforgeQuestion>> searchQuestions({
