@@ -34,14 +34,15 @@ class HermesApp extends StatelessWidget {
       title: 'Hermes',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF000000),
         primaryColor: const Color(0xFFFF7A1A),
         colorScheme: const ColorScheme.dark(
           primary: Color(0xFFFF7A1A),
           secondary: Color(0xFFFF7A1A),
           surface: Color(0xFF0D0D0D),
-          background: Color(0xFF000000),
           error: Color(0xFFEF4444),
         ),
         appBarTheme: const AppBarTheme(
@@ -63,27 +64,38 @@ class AuthGateScreen extends StatefulWidget {
 }
 
 class _AuthGateScreenState extends State<AuthGateScreen> {
-  String _statusMessage = 'Connecting to Hermes...';
+  String _statusMessage = 'Initializing Hermes...';
+  bool _showRetry = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAuth();
-    });
+    _startInitialization();
+  }
+
+  Future<void> _startInitialization() async {
+    // Small delay to ensure the UI renders the first frame
+    await Future.delayed(const Duration(milliseconds: 500));
+    _checkAuth();
   }
 
   Future<void> _checkAuth() async {
+    if (!mounted) return;
+    setState(() {
+      _showRetry = false;
+      _statusMessage = 'Connecting to backend...';
+    });
+
     try {
       final apiClient = PoforgeApiClient();
 
-      setState(() => _statusMessage = 'Checking local session...');
+      setState(() => _statusMessage = 'Checking session...');
       final token = await apiClient.getToken();
       
       if (!mounted) return;
 
       if (token != null && token.isNotEmpty) {
-        setState(() => _statusMessage = 'Waking up backend coach (this may take 30s)...');
+        setState(() => _statusMessage = 'Waking up backend coach...');
         // Verify token is still valid against backend
         final isValid = await apiClient.validateToken();
 
@@ -103,10 +115,12 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        setState(() => _statusMessage = 'Backend unreachable. Retrying...');
-        Future.delayed(const Duration(seconds: 3), () => _checkAuth());
+        setState(() {
+          _statusMessage = 'Backend unreachable. (Check your internet)';
+          _showRetry = true;
+        });
       }
     }
   }
@@ -119,15 +133,24 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Safe fallback for image: if it fails, it just shows a placeholder circle
             Container(
-              width: 96,
-              height: 96,
+              width: 90,
+              height: 90,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFFF7A1A), width: 2),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/hermes_logo.png'),
+                color: const Color(0xFF0D0D0D),
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/hermes_logo.png',
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(Icons.psychology, color: Color(0xFFFF7A1A), size: 40),
+                    );
+                  },
                 ),
               ),
             ),
@@ -141,33 +164,35 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
                 letterSpacing: 4,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'AI Banking Coach',
-              style: TextStyle(
-                color: Color(0xFF737373),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
             const SizedBox(height: 32),
-            const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7A1A)),
+            if (!_showRetry)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF7A1A)),
+                ),
               ),
-            ),
             const SizedBox(height: 20),
             Text(
               _statusMessage,
               style: const TextStyle(
-                color: Color(0xFF525252),
-                fontSize: 11,
-                fontStyle: FontStyle.italic,
+                color: Color(0xFF737373),
+                fontSize: 12,
               ),
+              textAlign: TextAlign.center,
             ),
+            if (_showRetry) ...[
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: _checkAuth,
+                child: const Text(
+                  'RETRY CONNECTION',
+                  style: TextStyle(color: Color(0xFFFF7A1A), fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ],
         ),
       ),
