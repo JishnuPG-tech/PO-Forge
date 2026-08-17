@@ -77,6 +77,7 @@ export interface AnalyticsResponse {
   revision_health_percentage: number;
   streak_days: number;
   target_exam_days_left: number;
+  total_attempts_count?: number;
   subject_mastery: Record<string, number>;
   mistake_intelligence: Record<string, number>;
   strongest_topics: string[];
