@@ -5,6 +5,7 @@ from typing import List, Dict, Any, Optional
 from backend.app.api.deps import get_current_user, UserTokenPayload
 from backend.app.core.database import SessionLocal
 from backend.app.models.content import Question, QuestionOption, Subject, Topic
+from backend.app.models.enums import PublicationStatus
 from backend.app.services.mission_engine.mission_lifecycle import DailyMissionLifecycleManager
 from backend.app.services.mission_engine.schemas import DailyMissionState, MissionReport, MissionStatus
 
@@ -40,7 +41,10 @@ def start_today_mission(current_user: UserTokenPayload = Depends(get_current_use
     db = SessionLocal()
     published_pool = []
     try:
-        db_questions = db.query(Question).limit(100).all()
+        db_questions = db.query(Question).filter(
+            Question.publication_status == PublicationStatus.PUBLISHED,
+            Question.is_deleted == False
+        ).limit(100).all()
         for q in db_questions:
             opts = db.query(QuestionOption).filter(QuestionOption.question_id == q.id).order_by(QuestionOption.option_index).all()
             published_pool.append({
@@ -84,7 +88,10 @@ def submit_question_attempt(
     db = SessionLocal()
     published_pool = []
     try:
-        db_questions = db.query(Question).limit(100).all()
+        db_questions = db.query(Question).filter(
+            Question.publication_status == PublicationStatus.PUBLISHED,
+            Question.is_deleted == False
+        ).limit(100).all()
         for q in db_questions:
             opts = db.query(QuestionOption).filter(QuestionOption.question_id == q.id).order_by(QuestionOption.option_index).all()
             published_pool.append({

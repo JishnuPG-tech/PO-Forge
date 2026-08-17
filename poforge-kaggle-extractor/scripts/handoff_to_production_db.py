@@ -89,7 +89,7 @@ def handoff_to_database(dataset_dir: str, db_url: str = None) -> Dict[str, Any]:
     try:
         from backend.app.core.database import SessionLocal, engine, Base
         from backend.app.models.content import Question, QuestionOption, Subject, Topic, QuestionSource, QuestionSolution
-        from backend.app.models.enums import PublicationStatus as DBPublicationStatus, QuestionDifficulty
+        from backend.app.models.enums import PublicationStatus as DBPublicationStatus, QuestionDifficulty, ValidationStatus as DBValidationStatus
         
         # Ensure schema exists in active SQLite/Postgres DB
         Base.metadata.create_all(bind=engine)
@@ -123,6 +123,7 @@ def handoff_to_database(dataset_dir: str, db_url: str = None) -> Dict[str, Any]:
                 correct_option_index=cand.correct_option_index if cand.correct_option_index is not None else 0,
                 difficulty=QuestionDifficulty.MEDIUM,
                 publication_status=DBPublicationStatus.PUBLISHED,
+                validation_status=DBValidationStatus.VALIDATED,
                 confidence_score=0.95
             )
             db.add(db_q)

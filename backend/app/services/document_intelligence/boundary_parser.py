@@ -17,7 +17,7 @@ OPTION_PATTERN = re.compile(
 )
 
 ANSWER_PATTERN = re.compile(
-    r'(?:^|\n|\s*)(?:\d+[\.\)]\s*)?\(?([A-Ea-e])\)?\s*[:;\)]\s*|(?:Ans(?:wer)?|Correct\s+Option|Sol(?:ution)?)\s*[:;\-\s]*\(?([A-Ea-e])\)?',
+    r'(?:Ans(?:wer)?|Correct\s+Option|Correct\s+Answer|Right\s+Answer|AnsKey)\s*[:;\-\s]*\(?([A-Ea-e])\)?',
     re.IGNORECASE
 )
 
@@ -184,8 +184,6 @@ def segment_questions_from_pages(pages_text: Dict[int, str], document_id: str = 
 
         # Isolate clean stem
         q_stem = re.split(r'\n+\s*(?:--- PAGE BREAK ---|(?:\d+[\.\)]|Q\d+|\bDirections\b))', chunk_clean, flags=re.IGNORECASE)[0]
-        if options and options[0].text in q_stem:
-            q_stem = q_stem.split(options[0].text)[0]
         q_stem = re.split(r'\n+\s*(?:\(?([A-Ea-e])\)?[\.\)])\s*', q_stem)[0]
         q_stem = re.sub(r'\s*TTA\s*:\s*\d+\s*Seconds?', '', q_stem, flags=re.IGNORECASE).strip()
         q_stem = re.sub(r'^--- PAGE BREAK ---\s*', '', q_stem, flags=re.IGNORECASE).strip()

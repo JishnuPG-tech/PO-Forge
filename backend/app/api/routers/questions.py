@@ -33,7 +33,10 @@ def search_published_questions(
     """Search real published questions from the persistent database."""
     db = SessionLocal()
     try:
-        query = db.query(Question).join(Topic, Question.topic_id == Topic.id).join(Subject, Question.subject_id == Subject.id)
+        query = db.query(Question).filter(
+            Question.publication_status == PublicationStatus.PUBLISHED,
+            Question.is_deleted == False
+        ).join(Topic, Question.topic_id == Topic.id).join(Subject, Question.subject_id == Subject.id)
         
         if subject_code:
             query = query.filter(Subject.code == subject_code.upper())

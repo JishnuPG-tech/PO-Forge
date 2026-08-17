@@ -30,8 +30,81 @@ class CorpusIntelligenceEngine:
             else:
                 word_problem_questions.append(q)
 
-        # Mine Dynamic Template 1: Arithmetic Percentage & Approximation Equation
-        if simplification_questions:
+        # Mine Topic Specific Templates
+        if topic_code == "PROFIT_LOSS" or any("profit" in q.get("text", "").lower() or "discount" in q.get("text", "").lower() for q in questions_to_process):
+            template_code = f"TPL_{subject_code}_PROFIT_LOSS_DISCOUNT_TRAP_001"
+            stem_pattern = "A shopkeeper marks an article {markup_pct}% above cost price and allows a discount of {discount_pct}%. Find his profit percent."
+            numeric_param_ranges = {
+                "markup_pct": {"min": 10.0, "max": 60.0, "step": 5.0},
+                "discount_pct": {"min": 5.0, "max": 30.0, "step": 5.0}
+            }
+            distractor_patterns = [
+                {"name": "direct_subtraction_trap", "formula": "markup_pct - discount_pct"},
+                {"name": "discount_on_cp_error", "formula": "markup_pct - discount_pct - 1"},
+                {"name": "markup_as_profit", "formula": "markup_pct"}
+            ]
+            mined_templates.append({
+                "template_code": template_code,
+                "subject_code": subject_code,
+                "topic_code": "PROFIT_LOSS",
+                "stem_pattern": stem_pattern,
+                "numeric_param_ranges_json": numeric_param_ranges,
+                "distractor_patterns_json": distractor_patterns,
+                "difficulty_signal": "MEDIUM",
+                "style_fingerprint": "TESTBOOK_ACE_QUANT_REAL_INGESTED",
+                "example_question_ids_json": [q.get("id", f"Q_{i}") for i, q in enumerate(word_problem_questions[:20])]
+            })
+
+        elif topic_code == "SIMPLE_COMPOUND_INTEREST":
+            template_code = f"TPL_{subject_code}_CI_SI_DIFF_001"
+            stem_pattern = "The difference between simple and compound interest on a sum of ₹{principal} for 2 years at {rate_pct}% per annum is ₹?."
+            numeric_param_ranges = {
+                "principal": {"min": 1000, "max": 50000, "step": 1000},
+                "rate_pct": {"min": 5.0, "max": 20.0, "step": 1.0}
+            }
+            distractor_patterns = [
+                {"name": "si_only_error", "formula": "principal * (rate_pct / 100) * 2"},
+                {"name": "one_year_diff", "formula": "principal * (rate_pct / 100)"},
+                {"name": "rate_squared_error", "formula": "principal * ((rate_pct / 100) ** 2) * 10"}
+            ]
+            mined_templates.append({
+                "template_code": template_code,
+                "subject_code": subject_code,
+                "topic_code": "SIMPLE_COMPOUND_INTEREST",
+                "stem_pattern": stem_pattern,
+                "numeric_param_ranges_json": numeric_param_ranges,
+                "distractor_patterns_json": distractor_patterns,
+                "difficulty_signal": "HARD",
+                "style_fingerprint": "TESTBOOK_ACE_QUANT_REAL_INGESTED",
+                "example_question_ids_json": [q.get("id", f"Q_{i}") for i, q in enumerate(word_problem_questions[:20])]
+            })
+
+        elif topic_code == "TIME_WORK":
+            template_code = f"TPL_{subject_code}_TIME_WORK_ALTERNATE_001"
+            stem_pattern = "A can complete a piece of work in {days_a} days and B in {days_b} days. In how many days can they complete the work working together?"
+            numeric_param_ranges = {
+                "days_a": {"min": 10, "max": 40, "step": 2},
+                "days_b": {"min": 15, "max": 60, "step": 3}
+            }
+            distractor_patterns = [
+                {"name": "average_days_error", "formula": "(days_a + days_b) / 2"},
+                {"name": "sum_days_error", "formula": "days_a + days_b"},
+                {"name": "reciprocal_sum_error", "formula": "days_a * days_b / (days_a + days_b) + 2"}
+            ]
+            mined_templates.append({
+                "template_code": template_code,
+                "subject_code": subject_code,
+                "topic_code": "TIME_WORK",
+                "stem_pattern": stem_pattern,
+                "numeric_param_ranges_json": numeric_param_ranges,
+                "distractor_patterns_json": distractor_patterns,
+                "difficulty_signal": "MEDIUM",
+                "style_fingerprint": "TESTBOOK_ACE_QUANT_REAL_INGESTED",
+                "example_question_ids_json": [q.get("id", f"Q_{i}") for i, q in enumerate(word_problem_questions[:20])]
+            })
+
+        # Dynamic Simplification / Approximation Templates
+        if simplification_questions or topic_code == "SIMPLIFICATION":
             example_ids = [q.get("id", f"Q_{i}") for i, q in enumerate(simplification_questions[:50])]
             template_code = f"TPL_{subject_code}_APPROXIMATION_EQUATION_001"
             stem_pattern = "{pct1}% of {num1} – {num2} = ? – {pct2}% of {num3}"
@@ -61,39 +134,10 @@ class CorpusIntelligenceEngine:
             }
             mined_templates.append(mined_template_data)
 
-        # Mine Dynamic Template 2: Multi-step BODMAS Division & Square Root Equation
-        if len(simplification_questions) > 5:
-            example_ids = [q.get("id", f"Q_{i}") for i, q in enumerate(simplification_questions[5:55])]
-            template_code = f"TPL_{subject_code}_BODMAS_SQUARE_ROOT_002"
-            stem_pattern = "√{num1} × {num2} ÷ {num3} = ? + {num4}"
-            numeric_param_ranges = {
-                "num1": {"min": 100, "max": 10000, "step": 100},
-                "num2": {"min": 2, "max": 50, "step": 1},
-                "num3": {"min": 2, "max": 20, "step": 1},
-                "num4": {"min": 10, "max": 200, "step": 5}
-            }
-            distractor_patterns = [
-                {"name": "order_of_operations_error", "formula": "sqrt(num1) * (num2 / (num3 + num4))"},
-                {"name": "square_root_approx_error", "formula": "actual_result - 5"}
-            ]
-
-            mined_template_data = {
-                "template_code": template_code,
-                "subject_code": subject_code,
-                "topic_code": "SIMPLIFICATION",
-                "stem_pattern": stem_pattern,
-                "numeric_param_ranges_json": numeric_param_ranges,
-                "distractor_patterns_json": distractor_patterns,
-                "difficulty_signal": "HARD",
-                "style_fingerprint": "TESTBOOK_ACE_QUANT_REAL_INGESTED",
-                "example_question_ids_json": example_ids
-            }
-            mined_templates.append(mined_template_data)
-
-        # Fallback if no questions passed
+        # Fallback if no questions or topic matched
         if not mined_templates:
             mined_templates.append({
-                "template_code": f"TPL_{subject_code}_SIMPLIFICATION_DEFAULT",
+                "template_code": f"TPL_{subject_code}_{topic_code}_DEFAULT_001",
                 "subject_code": subject_code,
                 "topic_code": topic_code,
                 "stem_pattern": "{num1} + {num2} * {num3} = ?",

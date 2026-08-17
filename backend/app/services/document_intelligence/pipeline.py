@@ -154,7 +154,7 @@ class DocumentIntelligencePipeline:
             ocr_pages_count=total_ocr_pages,
             di_sets_found=len(set(c.di_set_id for c in candidates if c.di_set_id)),
             processing_time_seconds=elapsed_time,
-            quality_gate_passed=(rejected_count == 0 and valid_published_count > 0)
+            quality_gate_passed=(rejected_count == 0 and review_required_count == 0 and valid_published_count > 0)
         )
 
         return candidates, report

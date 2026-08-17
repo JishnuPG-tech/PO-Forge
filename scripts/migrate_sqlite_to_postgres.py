@@ -47,29 +47,36 @@ def run_migration(sqlite_path: str, postgres_url: str):
 
     print("\n[TARGET POSTGRES SCHEMA INITIALIZED]")
 
+    # Clear existing child records if re-running migration to ensure clean state
+    with engine.connect() as con:
+        con.execute(text("DELETE FROM question_solutions;"))
+        con.execute(text("DELETE FROM question_sources;"))
+        con.execute(text("DELETE FROM question_options;"))
+        con.execute(text("DELETE FROM questions;"))
+        con.execute(text("DELETE FROM topics;"))
+        con.execute(text("DELETE FROM subjects;"))
+        con.commit()
+
     # 3. Migrate Subjects
     src_cur.execute("SELECT id, code, name, description FROM subjects;")
     for row in src_cur.fetchall():
-        if not pg_session.query(Subject).filter(Subject.id == row[0]).first():
-            pg_session.add(Subject(id=row[0], code=row[1], name=row[2], description=row[3]))
+        pg_session.add(Subject(id=row[0], code=row[1], name=row[2], description=row[3]))
     pg_session.commit()
 
     # 4. Migrate Topics
     src_cur.execute("SELECT id, subject_id, code, name, description FROM topics;")
     for row in src_cur.fetchall():
-        if not pg_session.query(Topic).filter(Topic.id == row[0]).first():
-            pg_session.add(Topic(id=row[0], subject_id=row[1], code=row[2], name=row[3], description=row[4]))
+        pg_session.add(Topic(id=row[0], subject_id=row[1], code=row[2], name=row[3], description=row[4]))
     pg_session.commit()
 
     # 5. Migrate Questions
-    src_cur.execute("SELECT id, subject_id, topic_id, text, option_count, correct_option_index, difficulty, publication_status, confidence_score FROM questions;")
+    src_cur.execute("SELECT id, subject_id, topic_id, text, option_count, correct_option_index, difficulty, publication_status, validation_status, confidence_score FROM questions;")
     for row in src_cur.fetchall():
-        if not pg_session.query(Question).filter(Question.id == row[0]).first():
-            pg_session.add(Question(
-                id=row[0], subject_id=row[1], topic_id=row[2], text=row[3],
-                option_count=row[4], correct_option_index=row[5], difficulty=row[6],
-                publication_status=row[7], confidence_score=row[8]
-            ))
+        pg_session.add(Question(
+            id=row[0], subject_id=row[1], topic_id=row[2], text=row[3],
+            option_count=row[4], correct_option_index=row[5], difficulty=row[6],
+            publication_status=row[7], validation_status=row[8], confidence_score=row[9]
+        ))
     pg_session.commit()
 
     # 6. Migrate Question Options
