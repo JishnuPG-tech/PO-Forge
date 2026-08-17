@@ -2,7 +2,10 @@
   "name": "POForge Mobile Android Builder",
   "image": "ghcr.io/cirruslabs/flutter:latest",
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
   },
   "customizations": {
     "vscode": {
