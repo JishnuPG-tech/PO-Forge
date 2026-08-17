@@ -37,17 +37,27 @@ class _PoforgeWebViewPageState extends State<PoforgeWebViewPage> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            setState(() {
-              _progress = progress / 100;
-            });
+            if (mounted) {
+              setState(() {
+                _progress = progress / 100;
+              });
+            }
           },
-          onPageStarted: (String url) async {
-            setState(() => _loading = true);
-            await _injectAuthScript();
+          onPageStarted: (String url) {
+            if (mounted) {
+              setState(() => _loading = true);
+            }
           },
           onPageFinished: (String url) async {
-            setState(() => _loading = false);
+            if (mounted) {
+              setState(() => _loading = false);
+            }
             await _injectAuthScript();
+          },
+          onWebResourceError: (WebResourceError error) {
+            if (mounted) {
+              setState(() => _loading = false);
+            }
           },
         ),
       )
@@ -55,19 +65,18 @@ class _PoforgeWebViewPageState extends State<PoforgeWebViewPage> {
   }
 
   Future<void> _injectAuthScript() async {
-    final token = await _apiClient.getToken();
-    if (token != null && token.isNotEmpty) {
-      final script = '''
-        try {
-          localStorage.setItem('poforge_jwt_token', ${jsonEncode(token)});
-          localStorage.setItem('poforge_user_id', 'STUDENT_DEV_001');
-          console.log('[POForge Mobile] JWT injected successfully into WebView localStorage');
-        } catch (e) {
-          console.error('[POForge Mobile] Error injecting JWT:', e);
-        }
-      ''';
-      await _controller.runJavaScript(script);
-    }
+    try {
+      final token = await _apiClient.getToken();
+      if (token != null && token.isNotEmpty) {
+        final script = '''
+          try {
+            localStorage.setItem('poforge_jwt_token', ${jsonEncode(token)});
+            localStorage.setItem('poforge_user_id', 'STUDENT_DEV_001');
+          } catch (e) {}
+        ''';
+        await _controller.runJavaScript(script);
+      }
+    } catch (_) {}
   }
 
   @override

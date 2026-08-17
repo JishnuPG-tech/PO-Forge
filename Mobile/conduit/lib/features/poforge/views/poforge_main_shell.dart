@@ -10,24 +10,47 @@ class PoforgeMainShell extends StatefulWidget {
 }
 
 class _PoforgeMainShellState extends State<PoforgeMainShell> {
-  int _currentIndex = 4; // Default to Hermes Coach (native)
+  int _currentIndex = 4; // Default to Coach tab (Hermes AI native chat)
 
-  final List<Widget> _destinations = [
-    const PoforgeWebViewPage(path: '/today', title: 'Daily Mission'),
-    const PoforgeWebViewPage(path: '/practice', title: 'Practice Hub'),
-    const PoforgeWebViewPage(path: '/mock', title: 'Mock Exams'),
-    const PoforgeWebViewPage(path: '/analysis', title: 'Performance Analysis'),
-    const ChatPage(), // Native Hermes AI Coach
-  ];
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 0:
+        return const PoforgeWebViewPage(
+          key: ValueKey('tab_today'),
+          path: '/today',
+          title: 'Daily Mission',
+        );
+      case 1:
+        return const PoforgeWebViewPage(
+          key: ValueKey('tab_practice'),
+          path: '/practice',
+          title: 'Practice Hub',
+        );
+      case 2:
+        return const PoforgeWebViewPage(
+          key: ValueKey('tab_mock'),
+          path: '/mock',
+          title: 'Mock Exams',
+        );
+      case 3:
+        return const PoforgeWebViewPage(
+          key: ValueKey('tab_analysis'),
+          path: '/analysis',
+          title: 'Performance Analysis',
+        );
+      case 4:
+      default:
+        return const ChatPage(
+          key: ValueKey('tab_coach'),
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF000000),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _destinations,
-      ),
+      body: _buildBody(),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Color(0xFF0D0D0D),
