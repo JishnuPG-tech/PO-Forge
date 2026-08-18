@@ -50,6 +50,15 @@ def search_published_questions(
             opts = db.query(QuestionOption).filter(QuestionOption.question_id == q.id).order_by(QuestionOption.option_index).all()
             sol = db.query(QuestionSolution).filter(QuestionSolution.question_id == q.id).first()
             
+            # Basic completeness validation
+            opt_texts = [o.text.strip() for o in opts if o.text and o.text.strip()]
+            if len(opt_texts) < 4:
+                continue
+            if any("= ?" in t or t.startswith("+") or t.startswith("- [") for t in opt_texts):
+                continue
+            if (q.text or "").strip().endswith(("+", "-", "- [", "(")):
+                continue
+
             diff_str = q.difficulty.value if hasattr(q.difficulty, 'value') else str(q.difficulty or 'MEDIUM')
             status_str = q.publication_status.value if hasattr(q.publication_status, 'value') else str(q.publication_status or 'PUBLISHED')
             

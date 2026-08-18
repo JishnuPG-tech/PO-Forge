@@ -100,24 +100,69 @@ export function SinglePagePracticeEngine() {
         const dbQs = await questionsApi.searchQuestions({
           subject_code: activeTopic.subjectCode,
           topic_code: activeTopic.code,
-          limit: 20,
+          limit: 30,
         });
 
         if (dbQs && dbQs.length > 0) {
-          const mapped: PracticeQuestion[] = dbQs.map((q, idx) => ({
-            id: q.question_id || `${activeTopic.code}_DB_${idx}`,
-            topicCode: activeTopic.code,
-            subjectCode: activeTopic.subjectCode,
-            text: q.text,
-            options: q.options,
-            correctOptionIndex: q.correct_option_index,
-            explanation: q.explanation || "Detailed solution available in database repository.",
-            shortcut: q.shortcut || undefined,
-            commonTrap: q.common_trap || undefined,
-            difficulty: (q.difficulty as any) || "MEDIUM",
-            source: "POForge Persistent Database",
-          }));
-          setQuestionList([...localBank, ...mapped]);
+          const validDbQs: PracticeQuestion[] = [];
+
+          for (let idx = 0; idx < dbQs.length; idx++) {
+            const q = dbQs[idx];
+            const cleanOpts = (q.options || [])
+              .map((opt) => cleanOptionText(opt))
+              .filter((opt) => opt.trim().length > 0);
+
+            // Strict Validation Checks:
+            // 1. Must have 4 or 5 clean options
+            if (cleanOpts.length < 4) continue;
+
+            // 2. Options must not be fragment pieces of equations (e.g. "= ?", "+ 12", "of")
+            const isOptionFragment = cleanOpts.some(
+              (opt) =>
+                opt.includes("= ?") ||
+                opt.startsWith("+") ||
+                opt.startsWith("- [") ||
+                opt.endsWith(" of") ||
+                opt.length > 120
+            );
+            if (isOptionFragment) continue;
+
+            // 3. Stem must not end with unclosed operators or brackets
+            const trimmedStem = (q.text || "").trim();
+            if (
+              trimmedStem.length < 15 ||
+              trimmedStem.endsWith("+") ||
+              trimmedStem.endsWith("-") ||
+              trimmedStem.endsWith("- [") ||
+              trimmedStem.endsWith("(")
+            ) {
+              continue;
+            }
+
+            validDbQs.push({
+              id: q.question_id || `${activeTopic.code}_DB_${idx}`,
+              topicCode: activeTopic.code,
+              subjectCode: activeTopic.subjectCode,
+              text: q.text,
+              options: cleanOpts,
+              correctOptionIndex:
+                q.correct_option_index < cleanOpts.length ? q.correct_option_index : 0,
+              explanation: q.explanation || "Detailed step-by-step solution available.",
+              shortcut: q.shortcut || undefined,
+              commonTrap: q.common_trap || undefined,
+              difficulty: (q.difficulty as any) || "MEDIUM",
+              source: "POForge Verified Database",
+            });
+          }
+
+          // Combine local curated bank with valid DB questions (deduplicating by text)
+          const combined = [...localBank];
+          for (const vq of validDbQs) {
+            if (!combined.some((item) => item.text.trim() === vq.text.trim())) {
+              combined.push(vq);
+            }
+          }
+          setQuestionList(combined);
         } else {
           setQuestionList(localBank);
         }
