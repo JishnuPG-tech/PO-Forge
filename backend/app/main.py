@@ -4,15 +4,18 @@ from fastapi.responses import JSONResponse
 import os
 
 from backend.app.core.config import settings
-from backend.app.api.routers import (
-    auth_router, documents_router, questions_router,
-    hermes_router, missions_router, analytics_router
-)
+from backend.app.api.routers.auth import router as auth_router
+from backend.app.api.routers.questions import router as questions_router
+from backend.app.api.routers.missions import router as missions_router
+from backend.app.api.routers.analytics import router as analytics_router
+from backend.app.api.routers.documents import router as documents_router
+from backend.app.api.routers.hermes_ai import router as hermes_ai_router
+from backend.app.routers.hermes import router as hermes_device_router
 
 app = FastAPI(
-    title="POForge: Personal AI Banking Coach API",
-    description="Production-Grade API Platform for IBPS RRB PO, IBPS PO, SBI PO, SBI Clerk, RBI Assistant Examination Coaching.",
-    version="2.0.0",
+    title="POForge & Hermes: Banking Mastery & Agentic AI API",
+    description="Backend reasoning, exhaustive questions repository, and practice engine orchestration.",
+    version="2.1.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -27,7 +30,6 @@ allowed_origins = [
     "http://127.0.0.1:8000"
 ]
 
-# Support additional custom origin via env var if needed
 custom_origin = os.environ.get("ALLOWED_ORIGIN")
 if custom_origin and custom_origin not in allowed_origins:
     allowed_origins.append(custom_origin)
@@ -42,21 +44,21 @@ app.add_middleware(
 
 # Register API v1 Routers
 app.include_router(auth_router, prefix="/api/v1")
-app.include_router(documents_router, prefix="/api/v1")
 app.include_router(questions_router, prefix="/api/v1")
-app.include_router(hermes_router, prefix="/api/v1")
 app.include_router(missions_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
+app.include_router(documents_router, prefix="/api/v1")
+app.include_router(hermes_ai_router, prefix="/api/v1")
+app.include_router(hermes_device_router)
 
 @app.get("/")
 @app.get("/health")
 def root_health_check():
     return {
         "status": "HEALTHY",
-        "app_name": "POForge: Personal AI Banking Coach",
-        "version": "2.0.0",
-        "environment": os.environ.get("ENVIRONMENT", "production"),
-        "database_type": "postgresql" if "postgresql" in str(settings.DATABASE_URL) else "sqlite"
+        "app_name": "POForge & Hermes Practice API",
+        "version": "2.1.0",
+        "environment": os.environ.get("ENVIRONMENT", "production")
     }
 
 @app.exception_handler(Exception)
