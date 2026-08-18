@@ -36,11 +36,13 @@ class OptionPurifier:
             if c and c not in cleaned_list:
                 cleaned_list.append(c)
 
-        # Reject if any option contains equation fragments
+        # Reject if any option contains equation fragments or operators
         for opt in cleaned_list:
-            if any(frag in opt for frag in ['= ?', '=?', '% of', ' of ', '+ ', '- [']):
-                return [], False, f"Option contains equation fragment: {opt}"
-            if len(opt) > 120:
+            if opt in ["None of these", "None of the above", "Cannot be determined"]:
+                continue
+            if any(frag in opt for frag in ['= ?', '=?', '=', '÷', '×', '% of', ' of ', '+ ', ' +', '- [', ' -', '[', ']', '(', ')']):
+                return [], False, f"Option contains operator/equation fragment: {opt}"
+            if len(opt) > 80:
                 return [], False, f"Option text is abnormally long: {opt[:30]}..."
 
         # Standardize to 5 options for banking format

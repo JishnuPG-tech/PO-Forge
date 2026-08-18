@@ -112,21 +112,43 @@ export function SinglePagePracticeEngine() {
               .map((opt) => cleanOptionText(opt))
               .filter((opt) => opt.trim().length > 0);
 
-            // 1. Reject if any option contains fragmented equation tokens or partial problem text
-            const isOptionFragment = cleanOpts.some(
-              (opt) =>
-                opt.includes("= ?") ||
-                opt.includes("=") ||
-                opt.includes("% of") ||
-                opt.includes(" of ") ||
-                opt.endsWith(" of") ||
-                opt.startsWith("+") ||
-                opt.startsWith("-") ||
-                opt.startsWith("×") ||
-                opt.startsWith("÷") ||
-                opt.startsWith("/") ||
-                opt.length > 100
-            );
+            // 1. Bulletproof Option Purity Gate: Reject if any option contains operators or sentence fragments
+            const isOptionFragment = cleanOpts.some((opt) => {
+              const o = opt.trim();
+              if (o === "None of these" || o === "None of the above" || o === "Cannot be determined") return false;
+              
+              // In Quant, options must be pure numbers/measurements, NEVER expressions with operators
+              if (activeTopic.subjectCode === "QUANT") {
+                if (
+                  o.includes("÷") ||
+                  o.includes("×") ||
+                  o.includes(" + ") ||
+                  o.includes(" - ") ||
+                  o.includes("=") ||
+                  o.includes("% of") ||
+                  o.includes(" of ") ||
+                  o.includes("[") ||
+                  o.includes("]") ||
+                  o.includes("(") ||
+                  o.includes(")")
+                ) {
+                  return true;
+                }
+              }
+
+              // Across all subjects, reject formula remnants and long broken text
+              return (
+                o.includes("= ?") ||
+                o.includes("=?") ||
+                o.startsWith("+") ||
+                o.startsWith("-") ||
+                o.startsWith("×") ||
+                o.startsWith("÷") ||
+                o.startsWith("/") ||
+                o.endsWith(" of") ||
+                o.length > 80
+              );
+            });
             if (isOptionFragment) continue;
 
             // 2. Ensure exactly 5 options (A, B, C, D, E) — append "None of these" if 4 options are provided
@@ -141,6 +163,7 @@ export function SinglePagePracticeEngine() {
             if (
               trimmedStem.length < 20 ||
               /\?\s*\d+\s*$/i.test(trimmedStem) ||
+              /\?\s*=\s*\d+\s*$/i.test(trimmedStem) ||
               trimmedStem.endsWith("+") ||
               trimmedStem.endsWith("-") ||
               trimmedStem.endsWith("- [") ||
