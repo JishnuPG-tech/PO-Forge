@@ -31,41 +31,63 @@ import {
   Zap,
   Sparkles,
   BookMarked,
-  HelpCircle,
+  SkipForward,
+  Grid,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+export type QuestionAttemptStatus = "unanswered" | "correct" | "incorrect" | "skipped";
+
+export interface UserQuestionState {
+  selectedOption: number | null;
+  status: QuestionAttemptStatus;
+  elapsedSeconds: number;
+}
 
 export function SinglePagePracticeEngine() {
   // Navigation & Filtering States
   const [selectedSubject, setSelectedSubject] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState<string>("" );
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
   const [activeTopic, setActiveTopic] = useState<PracticeTopic | null>(null);
 
   // Question & Drill States
   const [questionList, setQuestionList] = useState<PracticeQuestion[]>([]);
   const [currentQIndex, setCurrentQIndex] = useState<number>(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [isAnswerSubmitted, setIsAnswerSubmitted] = useState<boolean>(false);
   const [isSolutionOpen, setIsSolutionOpen] = useState<boolean>(false);
+  const [isGridModalOpen, setIsGridModalOpen] = useState<boolean>(false);
   const [bookmarkedQuestions, setBookmarkedQuestions] = useState<Record<string, boolean>>({});
+
+  // Question States Map (Tracks every question's individual answer and status)
+  const [questionStates, setQuestionStates] = useState<Record<number, UserQuestionState>>({});
 
   // Performance Metrics
   const [totalAttempted, setTotalAttempted] = useState<number>(0);
   const [totalCorrect, setTotalCorrect] = useState<number>(0);
+  const [totalSkipped, setTotalSkipped] = useState<number>(0);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const [streakCount, setStreakCount] = useState<number>(0);
   const [isSyncingMiner, setIsSyncingMiner] = useState<boolean>(false);
 
+  // Current Question State
+  const currentQuestion = questionList[currentQIndex] || null;
+  const currentQState = questionStates[currentQIndex] || {
+    selectedOption: null,
+    status: "unanswered",
+    elapsedSeconds: 0,
+  };
+
   // Timer per question
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (activeTopic && !isAnswerSubmitted) {
+    if (activeTopic && currentQState.status === "unanswered") {
       interval = setInterval(() => {
         setElapsedSeconds((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [activeTopic, isAnswerSubmitted]);
+  }, [activeTopic, currentQState.status]);
 
   // Load questions when active topic changes
   useEffect(() => {
@@ -104,8 +126,7 @@ export function SinglePagePracticeEngine() {
       }
 
       setCurrentQIndex(0);
-      setSelectedOption(null);
-      setIsAnswerSubmitted(false);
+      setQuestionStates({});
       setIsSolutionOpen(false);
       setElapsedSeconds(0);
     };
@@ -127,22 +148,55 @@ export function SinglePagePracticeEngine() {
     });
   }, [selectedSubject, searchQuery, difficultyFilter]);
 
-  const currentQuestion = questionList[currentQIndex] || null;
-
   // Handle Option Select & Auto-Evaluate
   const handleSelectOption = (idx: number) => {
-    if (isAnswerSubmitted) return;
-    setSelectedOption(idx);
-    setIsAnswerSubmitted(true);
-    setTotalAttempted((prev) => prev + 1);
+    if (currentQState.status !== "unanswered") return;
 
     const isCorrect = idx === currentQuestion?.correctOptionIndex;
+
+    setQuestionStates((prev) => ({
+      ...prev,
+      [currentQIndex]: {
+        selectedOption: idx,
+        status: isCorrect ? "correct" : "incorrect",
+        elapsedSeconds,
+      },
+    }));
+
+    setTotalAttempted((prev) => prev + 1);
+
     if (isCorrect) {
       setTotalCorrect((prev) => prev + 1);
       setStreakCount((prev) => prev + 1);
     } else {
       setStreakCount(0);
       setIsSolutionOpen(true);
+    }
+  };
+
+  // Handle Skip Question
+  const handleSkipQuestion = () => {
+    if (currentQState.status === "unanswered") {
+      setQuestionStates((prev) => ({
+        ...prev,
+        [currentQIndex]: {
+          selectedOption: null,
+          status: "skipped",
+          elapsedSeconds,
+        },
+      }));
+      setTotalSkipped((prev) => prev + 1);
+    }
+    handleNextQuestion();
+  };
+
+  // Jump directly to any question by index
+  const handleJumpToQuestion = (targetIndex: number) => {
+    if (targetIndex >= 0 && targetIndex < questionList.length) {
+      setCurrentQIndex(targetIndex);
+      setIsSolutionOpen(false);
+      setElapsedSeconds(0);
+      setIsGridModalOpen(false);
     }
   };
 
@@ -173,10 +227,16 @@ export function SinglePagePracticeEngine() {
       setCurrentQIndex((prev) => prev + 1);
     }
 
-    setSelectedOption(null);
-    setIsAnswerSubmitted(false);
     setIsSolutionOpen(false);
     setElapsedSeconds(0);
+  };
+
+  const handlePrevQuestion = () => {
+    if (currentQIndex > 0) {
+      setCurrentQIndex((prev) => prev - 1);
+      setIsSolutionOpen(false);
+      setElapsedSeconds(0);
+    }
   };
 
   const handleSyncMiner = async () => {
@@ -186,7 +246,7 @@ export function SinglePagePracticeEngine() {
     handleNextQuestion();
   };
 
-  // Keyboard navigation: 1-5 for options, Enter / Space for next
+  // Keyboard navigation: 1-5 for options, Enter/Space for next, K for skip, Left/Right arrows
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName)) return;
@@ -194,22 +254,28 @@ export function SinglePagePracticeEngine() {
 
       if (e.key >= "1" && e.key <= "5") {
         const idx = parseInt(e.key, 10) - 1;
-        if (idx < currentQuestion.options.length && !isAnswerSubmitted) {
+        if (idx < currentQuestion.options.length && currentQState.status === "unanswered") {
           handleSelectOption(idx);
         }
       } else if (e.key === "Enter" || e.key === " ") {
-        if (isAnswerSubmitted) {
+        if (currentQState.status !== "unanswered") {
           e.preventDefault();
           handleNextQuestion();
         }
+      } else if (e.key.toLowerCase() === "k") {
+        handleSkipQuestion();
       } else if (e.key.toLowerCase() === "s") {
         setIsSolutionOpen((prev) => !prev);
+      } else if (e.key === "ArrowLeft") {
+        handlePrevQuestion();
+      } else if (e.key === "ArrowRight" && currentQState.status !== "unanswered") {
+        handleNextQuestion();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentQuestion, isAnswerSubmitted]);
+  }, [currentQuestion, currentQState]);
 
   const accuracyPercentage =
     totalAttempted > 0 ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
@@ -269,7 +335,7 @@ export function SinglePagePracticeEngine() {
           /* ========================================================================= */
           /* 🎯 INTERACTIVE PRACTICE DRILL VIEW (SINGLE PAGE WORKSPACE)                 */
           /* ========================================================================= */
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Top Navigation Bar */}
             <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#0D0D0D] border border-[#262626]">
               <div className="flex items-center gap-3">
@@ -295,18 +361,86 @@ export function SinglePagePracticeEngine() {
                 </div>
               </div>
 
-              {/* Question Index & Live Stopwatch */}
-              <div className="flex items-center gap-3 font-mono text-xs">
+              {/* Controls: Skip Button, Question Grid & Stopwatch */}
+              <div className="flex items-center gap-2.5 font-mono text-xs">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#141414] border border-[#262626]">
                   <Clock className="w-3.5 h-3.5 text-[#FF7A1A]" />
                   <span className="text-[#FFFFFF]">
                     {Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, "0")}
                   </span>
                 </div>
-                <div className="px-3 py-1.5 rounded-md bg-[#141414] border border-[#262626] text-[#A3A3A3]">
-                  Question <span className="text-[#FFFFFF] font-bold">{currentQIndex + 1}</span> of {questionList.length}
-                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSkipQuestion}
+                  title="Skip this question and move to next (Shortcut: K)"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#181818] hover:bg-[#222222] border border-[#333333] text-xs text-[#E5E5E5] hover:text-[#FFFFFF] font-semibold transition-colors cursor-pointer"
+                >
+                  <SkipForward className="w-3.5 h-3.5 text-[#FF7A1A]" />
+                  <span>Skip [K]</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsGridModalOpen(true)}
+                  title="Open full question selection palette"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#181818] hover:bg-[#222222] border border-[#333333] text-xs text-[#E5E5E5] hover:text-[#FFFFFF] font-semibold transition-colors cursor-pointer"
+                >
+                  <Grid className="w-3.5 h-3.5 text-[#22C55E]" />
+                  <span>Select Q ({currentQIndex + 1}/{questionList.length})</span>
+                </button>
               </div>
+            </div>
+
+            {/* 🧭 HORIZONTAL QUESTION NAVIGATOR / SELECTOR PALETTE */}
+            <div className="p-3 rounded-xl bg-[#0D0D0D] border border-[#262626] flex items-center gap-2 overflow-x-auto scrollbar-none">
+              <button
+                type="button"
+                onClick={handlePrevQuestion}
+                disabled={currentQIndex === 0}
+                className="px-2 py-1.5 rounded-md bg-[#141414] border border-[#262626] text-[#A3A3A3] hover:text-white disabled:opacity-30 disabled:cursor-default cursor-pointer flex items-center justify-center flex-shrink-0"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-1.5 flex-1">
+                {questionList.map((_, qIdx) => {
+                  const state = questionStates[qIdx]?.status || "unanswered";
+                  const isCurrent = qIdx === currentQIndex;
+
+                  let badgeStyle = "bg-[#141414] text-[#A3A3A3] border-[#262626] hover:border-[#444444]";
+                  if (state === "correct") {
+                    badgeStyle = "bg-[#0A2614] text-[#22C55E] border-[#22C55E]/60 font-bold";
+                  } else if (state === "incorrect") {
+                    badgeStyle = "bg-[#2A0D0E] text-[#EF4444] border-[#EF4444]/60 font-bold";
+                  } else if (state === "skipped") {
+                    badgeStyle = "bg-[#1F1708] text-[#EAB308] border-[#EAB308]/60 font-bold";
+                  }
+
+                  if (isCurrent) {
+                    badgeStyle += " ring-2 ring-[#FF7A1A] ring-offset-2 ring-offset-black text-white font-black";
+                  }
+
+                  return (
+                    <button
+                      key={qIdx}
+                      type="button"
+                      onClick={() => handleJumpToQuestion(qIdx)}
+                      className={`min-w-[34px] h-[34px] rounded-lg border text-xs font-mono flex items-center justify-center transition-all cursor-pointer flex-shrink-0 ${badgeStyle}`}
+                    >
+                      {qIdx + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleNextQuestion}
+                className="px-2 py-1.5 rounded-md bg-[#141414] border border-[#262626] text-[#A3A3A3] hover:text-white cursor-pointer flex items-center justify-center flex-shrink-0"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Question Card Container */}
@@ -316,7 +450,7 @@ export function SinglePagePracticeEngine() {
                 <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-4">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-[#1C120C] text-[#FF7A1A] border border-[#FF7A1A]/30">
-                      PRELIMS & MAINS DRILL
+                      QUESTION {currentQIndex + 1} OF {questionList.length}
                     </span>
                     <span className="text-xs text-[#737373] font-mono">ID: {currentQuestion.id}</span>
                   </div>
@@ -354,12 +488,13 @@ export function SinglePagePracticeEngine() {
                 <div className="space-y-3 pt-2">
                   {currentQuestion.options.map((rawOptionText, optIdx) => {
                     const cleanText = cleanOptionText(rawOptionText);
-                    const isSelected = selectedOption === optIdx;
+                    const isSelected = currentQState.selectedOption === optIdx;
                     const isCorrect = optIdx === currentQuestion.correctOptionIndex;
+                    const isEvaluated = currentQState.status !== "unanswered";
 
                     let cardStyle = "border-[#262626] bg-[#121212] hover:border-[#444444] text-[#FFFFFF]";
 
-                    if (isAnswerSubmitted) {
+                    if (isEvaluated) {
                       if (isCorrect) {
                         cardStyle = "border-[#22C55E] bg-[#0A2614] text-[#FFFFFF] shadow-sm";
                       } else if (isSelected && !isCorrect) {
@@ -376,15 +511,15 @@ export function SinglePagePracticeEngine() {
                         key={optIdx}
                         type="button"
                         onClick={() => handleSelectOption(optIdx)}
-                        disabled={isAnswerSubmitted}
+                        disabled={isEvaluated}
                         className={`w-full text-left p-4 rounded-xl border transition-all duration-150 flex items-center justify-between gap-3 text-sm leading-relaxed cursor-pointer disabled:cursor-default ${cardStyle}`}
                       >
                         <div className="flex items-center gap-3">
                           <span
                             className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold ${
-                              isAnswerSubmitted && isCorrect
+                              isEvaluated && isCorrect
                                 ? "bg-[#22C55E] text-black"
-                                : isAnswerSubmitted && isSelected && !isCorrect
+                                : isEvaluated && isSelected && !isCorrect
                                 ? "bg-[#EF4444] text-white"
                                 : isSelected
                                 ? "bg-[#FF7A1A] text-black"
@@ -396,13 +531,13 @@ export function SinglePagePracticeEngine() {
                           <span className="font-medium text-sm sm:text-base text-[#EDEDED]">{cleanText}</span>
                         </div>
 
-                        {isAnswerSubmitted && isCorrect && (
+                        {isEvaluated && isCorrect && (
                           <div className="w-6 h-6 rounded-full bg-[#22C55E] flex items-center justify-center text-black flex-shrink-0">
                             <Check className="w-4 h-4 stroke-[3]" />
                           </div>
                         )}
 
-                        {isAnswerSubmitted && isSelected && !isCorrect && (
+                        {isEvaluated && isSelected && !isCorrect && (
                           <div className="w-6 h-6 rounded-full bg-[#EF4444] flex items-center justify-center text-white flex-shrink-0">
                             <X className="w-4 h-4 stroke-[3]" />
                           </div>
@@ -413,24 +548,32 @@ export function SinglePagePracticeEngine() {
                 </div>
 
                 {/* Feedback Banner & Action Controls */}
-                {isAnswerSubmitted && (
+                {currentQState.status !== "unanswered" && (
                   <div className="pt-4 border-t border-[#262626] space-y-4">
                     <div
                       className={`p-4 rounded-xl border flex items-center justify-between ${
-                        selectedOption === currentQuestion.correctOptionIndex
+                        currentQState.status === "correct"
                           ? "bg-[#0A2614] border-[#22C55E]/40 text-[#22C55E]"
+                          : currentQState.status === "skipped"
+                          ? "bg-[#1F1708] border-[#EAB308]/40 text-[#EAB308]"
                           : "bg-[#2A0D0E] border-[#EF4444]/40 text-[#EF4444]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        {selectedOption === currentQuestion.correctOptionIndex ? (
+                        {currentQState.status === "correct" ? (
                           <Check className="w-5 h-5 text-[#22C55E]" />
+                        ) : currentQState.status === "skipped" ? (
+                          <SkipForward className="w-5 h-5 text-[#EAB308]" />
                         ) : (
                           <X className="w-5 h-5 text-[#EF4444]" />
                         )}
                         <span className="text-sm font-bold">
-                          {selectedOption === currentQuestion.correctOptionIndex
+                          {currentQState.status === "correct"
                             ? "Correct Answer! 100% accurate solution."
+                            : currentQState.status === "skipped"
+                            ? `Question Skipped. Correct answer is Option ${String.fromCharCode(
+                                65 + currentQuestion.correctOptionIndex
+                              )}.`
                             : `Incorrect. The correct answer is Option ${String.fromCharCode(
                                 65 + currentQuestion.correctOptionIndex
                               )}.`}
@@ -513,6 +656,73 @@ export function SinglePagePracticeEngine() {
               </div>
             ) : (
               <div className="p-12 text-center text-[#A3A3A3]">Loading questions for this topic...</div>
+            )}
+
+            {/* 🪟 FULL QUESTION SELECTOR MODAL PALETTE */}
+            {isGridModalOpen && (
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="w-full max-w-lg p-6 rounded-2xl bg-[#0D0D0D] border border-[#262626] space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-[#262626] pb-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Grid className="w-4 h-4 text-[#FF7A1A]" />
+                      Question Navigator & Selector
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setIsGridModalOpen(false)}
+                      className="text-xs text-[#A3A3A3] hover:text-white cursor-pointer px-2 py-1 rounded bg-[#1A1A1A]"
+                    >
+                      Close [Esc]
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-5 gap-2 max-h-72 overflow-y-auto p-1 scrollbar-none">
+                    {questionList.map((_, qIdx) => {
+                      const state = questionStates[qIdx]?.status || "unanswered";
+                      const isCurrent = qIdx === currentQIndex;
+
+                      let badgeStyle = "bg-[#141414] text-[#A3A3A3] border-[#262626] hover:border-[#555555]";
+                      if (state === "correct") {
+                        badgeStyle = "bg-[#0A2614] text-[#22C55E] border-[#22C55E]/60 font-bold";
+                      } else if (state === "incorrect") {
+                        badgeStyle = "bg-[#2A0D0E] text-[#EF4444] border-[#EF4444]/60 font-bold";
+                      } else if (state === "skipped") {
+                        badgeStyle = "bg-[#1F1708] text-[#EAB308] border-[#EAB308]/60 font-bold";
+                      }
+
+                      if (isCurrent) {
+                        badgeStyle += " ring-2 ring-[#FF7A1A] text-white font-black";
+                      }
+
+                      return (
+                        <button
+                          key={qIdx}
+                          type="button"
+                          onClick={() => handleJumpToQuestion(qIdx)}
+                          className={`h-11 rounded-lg border text-xs font-mono flex items-center justify-center transition-all cursor-pointer ${badgeStyle}`}
+                        >
+                          Q{qIdx + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center justify-around pt-3 border-t border-[#1F1F1F] text-[11px] font-mono text-[#A3A3A3]">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E]" /> Correct
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" /> Wrong
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#EAB308]" /> Skipped
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#333333]" /> Unanswered
+                    </span>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         ) : (
