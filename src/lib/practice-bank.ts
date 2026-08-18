@@ -799,6 +799,19 @@ export const TOPIC_QUESTION_BANK: Record<string, PracticeQuestion[]> = {
       difficulty: "EASY",
       source: "4000 Testbook Questions",
     },
+    {
+      id: "SMP_003",
+      topicCode: "SIMPLIFICATION",
+      subjectCode: "QUANT",
+      text: "What will come in place of the question mark (?) in the following equation?\n\n$$28.314 - 31.427 + 113.928 = ? + 29.114$$",
+      options: ["81.711", "80.701", "71.711", "81.701", "None of these"],
+      correctOptionIndex: 3,
+      explanation: "Step 1: Rearrange the equation to isolate (?):\n? = (28.314 + 113.928) - (31.427 + 29.114)\n\nStep 2: Add positive decimal terms:\n28.314 + 113.928 = 142.242\n\nStep 3: Add subtracted decimal terms:\n31.427 + 29.114 = 60.541\n\nStep 4: Perform final subtraction:\n? = 142.242 - 60.541 = 81.701.\n\nConclusion: Matches Option D: 81.701.",
+      shortcut: "Group all positive values and all negative values before final decimal subtraction.",
+      commonTrap: "Be careful not to confuse 81.701 with 81.711 due to column alignment.",
+      difficulty: "EASY",
+      source: "4000 Testbook Questions",
+    },
   ],
   QUADRATIC_EQUATIONS: [
     {

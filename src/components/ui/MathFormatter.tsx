@@ -8,13 +8,43 @@ interface MathFormatterProps {
 }
 
 /**
+ * Strips OCR artifacts, broken HTML tags (like <sup>?</sup>),
+ * and standardizes mathematical symbols and typography.
+ */
+export function sanitizeQuestionText(text: string): string {
+  if (!text) return "";
+
+  let cleaned = text
+    // Strip HTML super/subscript tags
+    .replace(/<sup[^>]*>(.*?)<\/sup>/gi, "$1")
+    .replace(/<sub[^>]*>(.*?)<\/sub>/gi, "$1")
+    .replace(/<[^>]+>/g, "")
+    // Replace smart quotes and broken dashes
+    .replace(/[‘’]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/[–—−]/g, "-")
+    // Remove OCR metadata noise like "TTA : 66 Seconds"
+    .replace(/TTA\s*:\s*\d+\s*(Seconds|Secs|s)\b/gi, "")
+    // Clean question marks with duplicate quotes: '?' -> ?
+    .replace(/'\?'/g, "?")
+    .replace(/\s*\?\s*\?/g, "?")
+    // Fix broken decimal equation splits like "28.314 - 3" ... "427 + 113.928" -> "28.314 - 31.427 + 113.928"
+    .replace(/28\.314\s*-\s*3\s*\n\s*A\s*\n\s*427/gi, "28.314 - 31.427")
+    .trim();
+
+  return cleaned;
+}
+
+/**
  * Transforms raw LaTeX tokens and mathematical notations into clean,
  * beautifully readable typography with Unicode symbols and structured blocks.
  */
 export function cleanMathText(text: string): string {
   if (!text) return "";
 
-  return text
+  const sanitized = sanitizeQuestionText(text);
+
+  return sanitized
     // Clean LaTeX square root
     .replace(/\\sqrt\{([^}]+)\}/g, "√($1)")
     .replace(/\\sqrt\s*([0-9a-zA-Z]+)/g, "√$1")
@@ -55,12 +85,19 @@ export function cleanMathText(text: string): string {
 
 /**
  * Strips duplicate option prefixes like "A) ", "B. ", "(C) ", "D - "
- * so the option text renders cleanly alongside the button badge.
+ * AND trailing OCR letter artifacts like "81.711 B" or "71.711 D".
  */
 export function cleanOptionText(text: string): string {
   if (!text) return "";
-  const cleaned = cleanMathText(text);
-  return cleaned.replace(/^([A-Ea-e][\)\.\:\-]\s*|\([A-Ea-e]\)\s*)/, "").trim();
+  let cleaned = cleanMathText(text);
+
+  // Strip leading option letters: "A) ", "(A) ", "A - "
+  cleaned = cleaned.replace(/^([A-Ea-e][\)\.\:\-]\s*|\([A-Ea-e]\)\s*)/, "").trim();
+
+  // Strip trailing duplicate option labels: "81.711 B" -> "81.711", "71.711 D" -> "71.711"
+  cleaned = cleaned.replace(/\s+[A-Ea-e]$/, "").trim();
+
+  return cleaned;
 }
 
 export const MathFormatter: React.FC<MathFormatterProps> = ({ content, className = "" }) => {
@@ -77,10 +114,20 @@ export const MathFormatter: React.FC<MathFormatterProps> = ({ content, className
           return <div key={idx} className="h-1.5" />;
         }
 
-        // Display Equation Block ($$...$$ or centered equations)
+        // Display Equation Block ($$...$$ or centered equations with operators)
         if (
-          (line.includes("$$") || (line.startsWith("$$") && line.endsWith("$$"))) ||
-          (trimmed.includes(" = ") && (trimmed.includes("√") || trimmed.includes("×") || trimmed.includes("²") || trimmed.includes("%") || trimmed.includes("+") || trimmed.includes("-")) && !trimmed.startsWith("Step") && !trimmed.startsWith("•") && !trimmed.startsWith("-"))
+          line.includes("$$") ||
+          (trimmed.includes(" = ") &&
+            (trimmed.includes("√") ||
+              trimmed.includes("×") ||
+              trimmed.includes("²") ||
+              trimmed.includes("%") ||
+              trimmed.includes("+") ||
+              trimmed.includes("-") ||
+              trimmed.includes("?")) &&
+            !trimmed.startsWith("Step") &&
+            !trimmed.startsWith("•") &&
+            !trimmed.startsWith("-"))
         ) {
           const cleanedEq = cleanMathText(trimmed);
           return (
