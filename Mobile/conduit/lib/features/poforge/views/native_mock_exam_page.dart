@@ -563,7 +563,7 @@ class _NativeMockExamPageState extends State<NativeMockExamPage> {
               const SizedBox(height: 12),
               Expanded(
                 child: GridView.builder(
-                  gridDelegate: const dynamic GridViewDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 5,
                     mainAxisSpacing: 8,
                     crossAxisSpacing: 8,
@@ -633,12 +633,4 @@ class _NativeMockExamPageState extends State<NativeMockExamPage> {
       ],
     );
   }
-}
-
-class dynamic GridViewDelegateWithFixedCrossAxisCount extends SliverGridDelegateWithFixedCrossAxisCount {
-  const dynamic GridViewDelegateWithFixedCrossAxisCount({
-    required super.crossAxisCount,
-    super.mainAxisSpacing,
-    super.crossAxisSpacing,
-  });
 }
