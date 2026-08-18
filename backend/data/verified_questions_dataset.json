@@ -1,0 +1,410 @@
+[
+  {
+    "id": "QCAND_TB_CH01_Q0006",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of question mark ? in the following question? 28.314 - 31.427 + 113.928 = ? + 29.114",
+    "options": [
+      "8",
+      "80.70",
+      "7",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 3,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option D).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0015",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of question mark (?) in the following question? $\\begin{array} { r } { \\frac { 1 \\dot { 6 } 0 - 4 4 \\times 9 \\div 3 } { \\frac { 1 } { 2 } o f 1 8 \\div 9 + 2 } = ? } \\end{array}$",
+    "options": [
+      "$",
+      "$9 { \\fr",
+      "$6 \\fr",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option B).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0058",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What should come in place of the question mark (?) in the following questions? √7921 + (?)2 = 4% 0f 1000 + 98$$",
+    "options": [
+      "7",
+      "6",
+      "Non",
+      "8",
+      "None of these"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option A).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0065",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What will come in place of question mark in the following equation? √[(7921 + 79) + 100] = ?$$",
+    "options": [
+      "89",
+      "9",
+      "87",
+      "90",
+      "None of these"
+    ],
+    "correct_option_index": 4,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option E).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0136",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What approximate value should come in the place of question mark (?) in the following question? {44.95 - (16.97 ×",
+    "options": [
+      "9",
+      "99 ×",
+      "0",
+      "-",
+      "None of these"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option B).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0158",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What will come in place of the question mark ? in the following question? (87.5% of 256) ÷ 14 + {(14 × 8 + 18 - 111) + 2 × 28} = ?$$",
+    "options": [
+      "8",
+      "78",
+      "89",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 3,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option D).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0182",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What approximate value should come in the place of question mark ? in the following question? (You are not expected to calculate the exact value) 150% of 454.80 - 30% of 329.7 = 25% of 30% of x$$",
+    "options": [
+      "70",
+      "790",
+      "7780",
+      "76",
+      "None of these"
+    ],
+    "correct_option_index": 2,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option C).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0184",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What should come in place of the question mark (?) in the following question? (67 × 38) ÷ 40 × 12 = ?$$",
+    "options": [
+      "6",
+      "760.6",
+      "76",
+      "8",
+      "None of these"
+    ],
+    "correct_option_index": 2,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option C).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": [
+      "Mathematically verified value: 763.8"
+    ]
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0231",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of question mark ? in the following question? 623.15 - 218.82 - 321.43 = ?",
+    "options": [
+      "89.",
+      "87.9",
+      "88.99",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 4,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option E).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": [
+      "Mathematically verified value: 82.9"
+    ]
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0248",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of the question mark (?) in the following equation? V $\\textstyle { \\sqrt { 2 1 0 { \\frac { 1 } { 4 } } } } = ?$",
+    "options": [
+      "$\\pm",
+      "$-",
+      "$",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 2,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option C).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0254",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of the question mark (?) in the following question? 25 $o f { \\frac { 7 } { 9 } }$ of (?) = 294",
+    "options": [
+      "9",
+      "8",
+      "80",
+      "7",
+      "Non"
+    ],
+    "correct_option_index": 4,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option E).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0259",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What should come in place of the question mark ? in the following question? 444 × 44 × 4 = ?$$",
+    "options": [
+      "6",
+      "76",
+      "78",
+      "89",
+      "Non"
+    ],
+    "correct_option_index": 2,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option C).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": [
+      "Mathematically verified value: 78144.0"
+    ]
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0260",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of the question mark (?) in the following question? $\\left( 9 9 9 { \\frac { 9 9 9 } { 1 0 0 0 } } \\times 9 \\right) = ?$",
+    "options": [
+      "$8 9 9",
+      "$8 0 0 0 \\fr",
+      "$8 6",
+      "$8 9 9 9 { \\fr",
+      "None of these"
+    ],
+    "correct_option_index": 3,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option D).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0261",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What should come in place of the question mark (?) in the following question? 1056 $\\times ? = ( 2 6 4 ) ^ { 2 }$",
+    "options": [
+      "6",
+      "66",
+      "67",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option B).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0274",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of question mark (?) in the following question? 11.25 - 2.75 × (7.66 +",
+    "options": [
+      "-6",
+      "89.",
+      "9.",
+      "7",
+      "None of these"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option B).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0284",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What approximate value should come in place of question mark (?) in the following question?",
+    "options": [
+      "897 ×",
+      "899 -",
+      "0",
+      "6",
+      "None of these"
+    ],
+    "correct_option_index": 3,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option D).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0336",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What should come in place of the question mark (?) in the following question? 23% of 8040 + 42% of 545 = ?% of 3000$$",
+    "options": [
+      "7",
+      "6",
+      "69.",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 2,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option C).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0349",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What will come in place of the question mark (?) in the following equation? √0.09 = ?",
+    "options": [
+      "0.0",
+      "0.00",
+      "0.",
+      "0.000",
+      "Non"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option C).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": [
+      "Mathematically verified value: 0.3"
+    ]
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0382",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "What should come in place of question mark ? in the following question? $\\textstyle { \\frac { 2 7 } { 3 5 } } + 7 { \\frac { 1 } { 7 } } + 5 { \\frac { 3 } { 5 } } + 1 4 { \\frac { 2 } { 5 } } - 7 { \\frac { 3 } { 7 } } = { \\frac { ? } { 3 5 } }$",
+    "options": [
+      "7",
+      "6",
+      "707",
+      "Non",
+      "None of these"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option A).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  },
+  {
+    "id": "QCAND_TB_CH01_Q0385",
+    "subject_code": "QUANT",
+    "topic_code": "SIMPLIFICATION",
+    "text": "$$What approximate value should come in place of the question mark (?) in the following question? 24.63% of 660 + 81% of 900.15 = ? - 63$$",
+    "options": [
+      "8",
+      "9",
+      "7",
+      "79",
+      "None of these"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Verified via Testbook Chapter 1 Answer Key Grid (Option A).",
+    "shortcut": null,
+    "common_trap": null,
+    "difficulty": "MEDIUM",
+    "is_valid": true,
+    "repair_notes": []
+  }
+]
