@@ -97,7 +97,7 @@ class _ChatPageState extends State<ChatPage> {
       final questions = await _apiClient.searchQuestions(limit: 1);
       final q = questions.isNotEmpty
           ? questions.first
-          : const PoforgeQuestion(
+          : PoforgeQuestion(
               questionId: 'QA_PL_042',
               subjectCode: 'QUANT',
               topicCode: 'PROFIT_LOSS',
