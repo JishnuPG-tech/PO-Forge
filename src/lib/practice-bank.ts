@@ -838,6 +838,19 @@ export const TOPIC_QUESTION_BANK: Record<string, PracticeQuestion[]> = {
       difficulty: "EASY",
       source: "4000 Testbook Questions",
     },
+    {
+      id: "SMP_006",
+      topicCode: "SIMPLIFICATION",
+      subjectCode: "QUANT",
+      text: "What approximate value should come in place of the question mark (?) in the following expression?\n\n$$33.5\\% \\text{ of } 1924.2 + ?\\% \\text{ of } 5324.4 = 6827.586$$",
+      options: ["136", "282", "90", "116", "199"],
+      correctOptionIndex: 3,
+      explanation: "Step 1: Round all numbers to practical calculation integers:\n33.5\\% \\approx \\frac{1}{3}\n1924.2 \\approx 1924\n5324.4 \\approx 5324\n6827.586 \\approx 6828\n\nStep 2: Calculate the first percentage term:\n33.5\\% \\text{ of } 1924.2 \\approx 0.335 \\times 1924.2 \\approx 645.\n\nStep 3: Subtract from total:\n?\\% \\text{ of } 5324 = 6828 - 645 = 6183.\n\nStep 4: Solve for ?:\n? = \\frac{6183}{5324} \\times 100 \\approx 1.1613 \\times 100 = 116.13\\% \\approx 116.\n\nConclusion: Matches Option D (116).",
+      shortcut: "33.5% of 1924 ≈ 645. Remaining needed = 6828 - 645 = 6183. Since 6183 is ~16% more than 5324, answer is 116%.",
+      commonTrap: "Do not approximate 33.5% as 30%; calculate 0.335 × 1924 for accurate balance.",
+      difficulty: "HARD",
+      source: "4000 Testbook Questions",
+    },
   ],
   QUADRATIC_EQUATIONS: [
     {

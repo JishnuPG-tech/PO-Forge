@@ -108,33 +108,45 @@ export function SinglePagePracticeEngine() {
 
           for (let idx = 0; idx < dbQs.length; idx++) {
             const q = dbQs[idx];
-            const cleanOpts = (q.options || [])
+            let cleanOpts = (q.options || [])
               .map((opt) => cleanOptionText(opt))
               .filter((opt) => opt.trim().length > 0);
 
-            // Strict Validation Checks:
-            // 1. Must have 4 or 5 clean options
-            if (cleanOpts.length < 4) continue;
-
-            // 2. Options must not be fragment pieces of equations (e.g. "= ?", "+ 12", "of")
+            // 1. Reject if any option contains fragmented equation tokens or partial problem text
             const isOptionFragment = cleanOpts.some(
               (opt) =>
                 opt.includes("= ?") ||
-                opt.startsWith("+") ||
-                opt.startsWith("- [") ||
+                opt.includes("=") ||
+                opt.includes("% of") ||
+                opt.includes(" of ") ||
                 opt.endsWith(" of") ||
-                opt.length > 120
+                opt.startsWith("+") ||
+                opt.startsWith("-") ||
+                opt.startsWith("×") ||
+                opt.startsWith("÷") ||
+                opt.startsWith("/") ||
+                opt.length > 100
             );
             if (isOptionFragment) continue;
 
-            // 3. Stem must not end with unclosed operators or brackets
+            // 2. Ensure exactly 5 options (A, B, C, D, E) — append "None of these" if 4 options are provided
+            if (cleanOpts.length === 4) {
+              cleanOpts.push("None of these");
+            } else if (cleanOpts.length !== 5) {
+              continue;
+            }
+
+            // 3. Stem sanity check: Reject if stem ends with a dangling number or incomplete bracket/operator
             const trimmedStem = (q.text || "").trim();
             if (
-              trimmedStem.length < 15 ||
+              trimmedStem.length < 20 ||
+              /\?\s*\d+\s*$/i.test(trimmedStem) ||
               trimmedStem.endsWith("+") ||
               trimmedStem.endsWith("-") ||
               trimmedStem.endsWith("- [") ||
-              trimmedStem.endsWith("(")
+              trimmedStem.endsWith("[") ||
+              trimmedStem.endsWith("(") ||
+              trimmedStem.endsWith("of")
             ) {
               continue;
             }
