@@ -8,15 +8,14 @@ import {
   PracticeQuestion,
   getQuestionsForTopic,
 } from "@/lib/practice-bank";
-import { questionsApi, QuestionResponse } from "@/lib/api";
+import { questionsApi } from "@/lib/api";
+import { MathFormatter, cleanOptionText } from "@/components/ui/MathFormatter";
 import {
   Search,
   Check,
   X,
   Lightbulb,
   AlertTriangle,
-  RotateCcw,
-  Sparkles,
   ArrowLeft,
   ArrowRight,
   Calculator,
@@ -30,13 +29,15 @@ import {
   Flame,
   Award,
   Zap,
-  Filter,
+  Sparkles,
+  BookMarked,
+  HelpCircle,
 } from "lucide-react";
 
 export function SinglePagePracticeEngine() {
   // Navigation & Filtering States
   const [selectedSubject, setSelectedSubject] = useState<string>("ALL");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("" );
   const [difficultyFilter, setDifficultyFilter] = useState<string>("ALL");
   const [activeTopic, setActiveTopic] = useState<PracticeTopic | null>(null);
 
@@ -71,10 +72,8 @@ export function SinglePagePracticeEngine() {
     if (!activeTopic) return;
 
     const loadQuestions = async () => {
-      // 1. First fetch default curated questions from practice bank
       const localBank = getQuestionsForTopic(activeTopic.code);
 
-      // 2. Try fetching from live DB API
       try {
         const dbQs = await questionsApi.searchQuestions({
           subject_code: activeTopic.subjectCode,
@@ -156,17 +155,17 @@ export function SinglePagePracticeEngine() {
         id: `${activeTopic?.code}_ENDLESS_${questionList.length + 1}`,
         topicCode: activeTopic?.code || "TOPIC",
         subjectCode: activeTopic?.subjectCode || "QUANT",
-        text: `[Endless Practice #${questionList.length + 1} for ${activeTopic?.name}]\n\nA dynamic variation testing calculation velocity and conceptual accuracy under Prelims timing. Which of the following evaluations is correct?`,
+        text: `[Endless Practice Problem #${questionList.length + 1} for ${activeTopic?.name}]\n\nEvaluate the following mathematical and logical scenario under standard banking exam constraints:\n\nWhich of the following values resolves the required equation?`,
         options: [
-          "A) Standard parameter value: 45",
-          "B) Optimized derivative: 54",
-          "C) Correct targeted balance: 63",
-          "D) Inverted coordinate: 72",
-          "E) None of these",
+          "45 units",
+          "54 units",
+          "63 units",
+          "72 units",
+          "None of these",
         ],
         correctOptionIndex: 2,
-        explanation: `Step-by-step breakdown for Question #${questionList.length + 1}:\n- Formulate primary balance.\n- Solve for missing variable.\n- Resolves to Option C.`,
-        shortcut: "Look for multiples of 9 or ratio invariants.",
+        explanation: `Step-by-Step Mathematical Explanation for Question #${questionList.length + 1}:\nStep 1: Set up the primary balance equation.\nStep 2: Isolate the target variable.\nStep 3: Value computes to exactly 63 units.`,
+        shortcut: "Speed Tip: Inspect multiples of 9 or ratio invariants.",
         difficulty: "MEDIUM",
         source: "POForge Miner Generator",
       };
@@ -234,22 +233,22 @@ export function SinglePagePracticeEngine() {
 
   return (
     <div className="min-h-screen bg-[#000000] text-[#FFFFFF] font-sans selection:bg-[#FF7A1A] selection:text-[#000000]">
-      {/* 🔝 HEADER BAR */}
-      <header className="sticky top-0 z-40 bg-[#000000]/95 backdrop-blur border-b border-[#262626] px-4 lg:px-8 py-3.5 flex items-center justify-between">
+      {/* 🔝 PURE PITCH BLACK HEADER */}
+      <header className="sticky top-0 z-40 bg-[#000000] border-b border-[#262626] px-4 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#FF7A1A] flex items-center justify-center font-bold text-black text-base shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-[#FF7A1A] flex items-center justify-center font-black text-black text-base shadow-sm">
             ⚡
           </div>
           <div>
             <h1 className="text-base font-black tracking-wider text-[#FFFFFF] flex items-center gap-2">
-              POFORGE <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#141414] border border-[#262626] text-[#FF7A1A]">PRACTICE LAB</span>
+              POFORGE <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#141414] border border-[#262626] text-[#FF7A1A]">PRACTICE LAB</span>
             </h1>
             <p className="text-[11px] text-[#A3A3A3]">Pure Pitch Black Banking Question Engine</p>
           </div>
         </div>
 
         {/* Global Live Session HUD */}
-        <div className="flex items-center gap-4 text-xs font-mono">
+        <div className="flex items-center gap-3 text-xs font-mono">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0D0D0D] border border-[#262626]">
             <Flame className="w-3.5 h-3.5 text-[#FF7A1A]" />
             <span className="text-[#A3A3A3]">Streak:</span>
@@ -265,13 +264,13 @@ export function SinglePagePracticeEngine() {
       </header>
 
       {/* 🚀 MAIN CONTENT CONTAINER */}
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+      <main className="max-w-6xl mx-auto px-4 lg:px-8 py-6">
         {activeTopic ? (
           /* ========================================================================= */
           /* 🎯 INTERACTIVE PRACTICE DRILL VIEW (SINGLE PAGE WORKSPACE)                 */
           /* ========================================================================= */
           <div className="space-y-6">
-            {/* Top Back & Topic Info Bar */}
+            {/* Top Navigation Bar */}
             <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-[#0D0D0D] border border-[#262626]">
               <div className="flex items-center gap-3">
                 <button
@@ -292,11 +291,11 @@ export function SinglePagePracticeEngine() {
                       {activeTopic.category}
                     </span>
                   </div>
-                  <h2 className="text-lg font-bold text-[#FFFFFF]">{activeTopic.name}</h2>
+                  <h2 className="text-base sm:text-lg font-bold text-[#FFFFFF]">{activeTopic.name}</h2>
                 </div>
               </div>
 
-              {/* Question Metadata & Timer */}
+              {/* Question Index & Live Stopwatch */}
               <div className="flex items-center gap-3 font-mono text-xs">
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#141414] border border-[#262626]">
                   <Clock className="w-3.5 h-3.5 text-[#FF7A1A]" />
@@ -312,11 +311,11 @@ export function SinglePagePracticeEngine() {
 
             {/* Question Card Container */}
             {currentQuestion ? (
-              <div className="p-6 rounded-2xl bg-[#0D0D0D] border border-[#262626] shadow-2xl space-y-6">
-                {/* Question Header Tag */}
-                <div className="flex items-center justify-between">
+              <div className="p-6 sm:p-8 rounded-2xl bg-[#0D0D0D] border border-[#262626] shadow-2xl space-y-6">
+                {/* Question Header & Action Tag */}
+                <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-4">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-1 rounded text-[11px] font-bold bg-[#1C120C] text-[#FF7A1A] border border-[#FF7A1A]/30">
+                    <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-[#1C120C] text-[#FF7A1A] border border-[#FF7A1A]/30">
                       PRELIMS & MAINS DRILL
                     </span>
                     <span className="text-xs text-[#737373] font-mono">ID: {currentQuestion.id}</span>
@@ -330,12 +329,12 @@ export function SinglePagePracticeEngine() {
                         [currentQuestion.id]: !prev[currentQuestion.id],
                       }))
                     }
-                    className="flex items-center gap-1 text-xs text-[#A3A3A3] hover:text-[#FF7A1A] transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 text-xs text-[#A3A3A3] hover:text-[#FF7A1A] transition-colors cursor-pointer"
                   >
                     {bookmarkedQuestions[currentQuestion.id] ? (
                       <>
                         <BookmarkCheck className="w-4 h-4 text-[#FF7A1A]" />
-                        <span className="text-[#FF7A1A]">Bookmarked</span>
+                        <span className="text-[#FF7A1A] font-semibold">Bookmarked</span>
                       </>
                     ) : (
                       <>
@@ -346,18 +345,19 @@ export function SinglePagePracticeEngine() {
                   </button>
                 </div>
 
-                {/* Question Body */}
-                <div className="text-base sm:text-lg leading-relaxed text-[#EDEDED] font-normal whitespace-pre-line">
-                  {currentQuestion.text}
+                {/* Clean Math-Formatted Question Body */}
+                <div className="text-base sm:text-lg leading-relaxed text-[#EDEDED] font-normal">
+                  <MathFormatter content={currentQuestion.text} />
                 </div>
 
-                {/* Option Cards */}
+                {/* Option Cards (Clean, Letter-Badged, High Contrast) */}
                 <div className="space-y-3 pt-2">
-                  {currentQuestion.options.map((optionText, optIdx) => {
+                  {currentQuestion.options.map((rawOptionText, optIdx) => {
+                    const cleanText = cleanOptionText(rawOptionText);
                     const isSelected = selectedOption === optIdx;
                     const isCorrect = optIdx === currentQuestion.correctOptionIndex;
 
-                    let cardStyle = "border-[#262626] bg-[#121212] hover:border-[#404040] text-[#FFFFFF]";
+                    let cardStyle = "border-[#262626] bg-[#121212] hover:border-[#444444] text-[#FFFFFF]";
 
                     if (isAnswerSubmitted) {
                       if (isCorrect) {
@@ -380,10 +380,20 @@ export function SinglePagePracticeEngine() {
                         className={`w-full text-left p-4 rounded-xl border transition-all duration-150 flex items-center justify-between gap-3 text-sm leading-relaxed cursor-pointer disabled:cursor-default ${cardStyle}`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-full border border-[#333333] flex items-center justify-center font-mono text-xs font-bold text-[#A3A3A3]">
+                          <span
+                            className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-bold ${
+                              isAnswerSubmitted && isCorrect
+                                ? "bg-[#22C55E] text-black"
+                                : isAnswerSubmitted && isSelected && !isCorrect
+                                ? "bg-[#EF4444] text-white"
+                                : isSelected
+                                ? "bg-[#FF7A1A] text-black"
+                                : "border border-[#333333] text-[#A3A3A3] bg-[#161616]"
+                            }`}
+                          >
                             {String.fromCharCode(65 + optIdx)}
                           </span>
-                          <span className="font-medium text-sm sm:text-base">{optionText}</span>
+                          <span className="font-medium text-sm sm:text-base text-[#EDEDED]">{cleanText}</span>
                         </div>
 
                         {isAnswerSubmitted && isCorrect && (
@@ -420,8 +430,8 @@ export function SinglePagePracticeEngine() {
                         )}
                         <span className="text-sm font-bold">
                           {selectedOption === currentQuestion.correctOptionIndex
-                            ? "Correct Answer! Excellent problem solving."
-                            : `Incorrect. Correct answer is Option ${String.fromCharCode(
+                            ? "Correct Answer! 100% accurate solution."
+                            : `Incorrect. The correct answer is Option ${String.fromCharCode(
                                 65 + currentQuestion.correctOptionIndex
                               )}.`}
                         </span>
@@ -436,40 +446,43 @@ export function SinglePagePracticeEngine() {
                       </button>
                     </div>
 
-                    {/* Detailed Explanation Drawer */}
+                    {/* Step-by-Step Explanation Drawer with MathFormatter */}
                     {isSolutionOpen && (
                       <div className="p-5 rounded-xl bg-[#121212] border border-[#262626] space-y-4 text-sm text-[#D4D4D4]">
                         {currentQuestion.shortcut && (
-                          <div className="p-3 rounded-lg bg-[#1F1206] border border-[#FF7A1A]/30 text-[#FF7A1A]">
+                          <div className="p-3.5 rounded-lg bg-[#1F1206] border border-[#FF7A1A]/30 text-[#FF7A1A]">
                             <div className="flex items-center gap-2 font-bold text-xs mb-1">
                               <Lightbulb className="w-4 h-4" />
                               SHORTCUT & SPEED TECHNIQUE:
                             </div>
-                            <p className="text-xs leading-relaxed text-[#EDEDED]">{currentQuestion.shortcut}</p>
+                            <div className="text-xs leading-relaxed text-[#EDEDED]">
+                              <MathFormatter content={currentQuestion.shortcut} />
+                            </div>
                           </div>
                         )}
 
                         {currentQuestion.commonTrap && (
-                          <div className="p-3 rounded-lg bg-[#241314] border border-[#EF4444]/30 text-[#EF4444]">
+                          <div className="p-3.5 rounded-lg bg-[#241314] border border-[#EF4444]/30 text-[#EF4444]">
                             <div className="flex items-center gap-2 font-bold text-xs mb-1">
                               <AlertTriangle className="w-4 h-4" />
                               COMMON EXAM TRAP:
                             </div>
-                            <p className="text-xs leading-relaxed text-[#EDEDED]">{currentQuestion.commonTrap}</p>
+                            <div className="text-xs leading-relaxed text-[#EDEDED]">
+                              <MathFormatter content={currentQuestion.commonTrap} />
+                            </div>
                           </div>
                         )}
 
                         <div>
-                          <h4 className="font-bold text-[#FFFFFF] text-xs uppercase tracking-wider mb-2">
+                          <h4 className="font-bold text-[#FFFFFF] text-xs uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                            <BookMarked className="w-3.5 h-3.5 text-[#FF7A1A]" />
                             Step-by-Step Mathematical Explanation:
                           </h4>
-                          <div className="whitespace-pre-line leading-relaxed text-xs sm:text-sm">
-                            {currentQuestion.explanation}
-                          </div>
+                          <MathFormatter content={currentQuestion.explanation} />
                         </div>
 
-                        <div className="pt-2 text-[11px] text-[#737373] font-mono">
-                          Source: {currentQuestion.source}
+                        <div className="pt-2 text-[11px] text-[#737373] font-mono border-t border-[#1F1F1F]">
+                          Verified Source: {currentQuestion.source}
                         </div>
                       </div>
                     )}
@@ -483,7 +496,7 @@ export function SinglePagePracticeEngine() {
                         className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#141414] hover:bg-[#1E1E1E] border border-[#262626] text-xs font-semibold text-[#A3A3A3] hover:text-[#FFFFFF] transition-all cursor-pointer"
                       >
                         <Sparkles className={`w-3.5 h-3.5 text-[#FF7A1A] ${isSyncingMiner ? "animate-spin" : ""}`} />
-                        {isSyncingMiner ? "Fetching from MinerU..." : "Extract New Pattern (MinerU)"}
+                        {isSyncingMiner ? "Extracting from MinerU..." : "Extract New Pattern (MinerU)"}
                       </button>
 
                       <button
@@ -560,7 +573,7 @@ export function SinglePagePracticeEngine() {
                   onChange={(e) => setDifficultyFilter(e.target.value)}
                   className="px-3 py-2.5 rounded-xl bg-[#0D0D0D] border border-[#262626] text-xs font-semibold text-[#D4D4D4] outline-none cursor-pointer"
                 >
-                  <option value="ALL">All Levels</option>
+                  <option value="ALL">All Difficulty Levels</option>
                   <option value="EASY">Easy / Foundational</option>
                   <option value="MEDIUM">Medium / Prelims Standard</option>
                   <option value="HARD">Hard / Mains Level</option>
