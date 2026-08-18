@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/poforge_api_client.dart';
-import 'poforge_main_shell.dart';
+import '../../chat/views/chat_page.dart';
 
 class PoforgeLoginPage extends StatefulWidget {
   const PoforgeLoginPage({super.key});
@@ -21,12 +21,10 @@ class _PoforgeLoginPageState extends State<PoforgeLoginPage> {
     });
 
     try {
-      // If it's a cold start, this could take a while.
-      // We show a more descriptive loading state.
       final token = await _apiClient.login();
       if (token != null && mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const PoforgeMainShell()),
+          MaterialPageRoute(builder: (_) => const ChatPage()),
         );
       } else {
         setState(() {

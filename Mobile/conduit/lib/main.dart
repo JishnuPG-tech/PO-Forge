@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/network/poforge_api_client.dart';
 import 'features/poforge/views/poforge_login_page.dart';
-import 'features/poforge/views/poforge_main_shell.dart';
+import 'features/chat/views/chat_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,8 +74,7 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
   }
 
   Future<void> _startInitialization() async {
-    // Small delay to ensure the UI renders the first frame
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 300));
     _checkAuth();
   }
 
@@ -83,33 +82,20 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
     if (!mounted) return;
     setState(() {
       _showRetry = false;
-      _statusMessage = 'Connecting to backend...';
+      _statusMessage = 'Connecting to Hermes...';
     });
 
     try {
       final apiClient = PoforgeApiClient();
-
-      setState(() => _statusMessage = 'Checking session...');
       final token = await apiClient.getToken();
       
       if (!mounted) return;
 
       if (token != null && token.isNotEmpty) {
-        setState(() => _statusMessage = 'Waking up backend coach...');
-        // Verify token is still valid against backend
-        final isValid = await apiClient.validateToken();
-
-        if (!mounted) return;
-
-        if (isValid) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const PoforgeMainShell()),
-          );
-          return;
-        } else {
-          // Token expired or invalid, clear it
-          await apiClient.clearAuth();
-        }
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ChatPage()),
+        );
+        return;
       }
 
       Navigator.of(context).pushReplacement(
@@ -117,10 +103,9 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
       );
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _statusMessage = 'Backend unreachable. (Check your internet)';
-          _showRetry = true;
-        });
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const PoforgeLoginPage()),
+        );
       }
     }
   }
@@ -133,7 +118,6 @@ class _AuthGateScreenState extends State<AuthGateScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Safe fallback for image: if it fails, it just shows a placeholder circle
             Container(
               width: 90,
               height: 90,
